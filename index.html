@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PICL India – Manpower Monitoring Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f0f4f8;--card:#fff;--hdr:#0d2b4e;--acc:#e8530a;--acc2:#1a73c8;
+  --grn:#16a34a;--red:#dc2626;--amb:#d97706;--pur:#7c3aed;
+  --txt:#1e293b;--sub:#64748b;--bdr:#e2e8f0;--r:10px;--g:11px;
+  --sh:0 2px 8px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:13px}
+.wrap{width:100vw;min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--hdr);color:#fff;padding:8px 18px;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;border-bottom:3px solid var(--acc)}
+.hl{display:flex;align-items:center;gap:14px}
+.co{font-size:17px;font-weight:800}
+.dt{font-size:12px;font-weight:500;color:#cbd5e1;border-left:2px solid var(--acc);padding-left:12px}
+.hr{display:flex;align-items:center;gap:8px}
+.bdg{background:rgba(255,255,255,.12);border-radius:6px;padding:4px 10px;font-size:11px;color:#e2e8f0}
+.fbar{background:var(--card);border-radius:var(--r);padding:7px 14px;box-shadow:var(--sh);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fbar label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--sub)}
+.fbar select{border:1px solid var(--bdr);border-radius:6px;padding:4px 8px;font-size:12px;
+  color:var(--txt);background:#f8fafc;cursor:pointer}
+.fbar select:focus{outline:2px solid var(--acc2);border-color:transparent}
+.sep{width:1px;height:24px;background:var(--bdr);margin:0 4px}
+.tog{display:flex;gap:3px}
+.tog button{border:1px solid var(--bdr);border-radius:5px;padding:3px 11px;font-size:11px;
+  font-weight:700;cursor:pointer;background:#f8fafc;color:var(--sub);transition:all .15s}
+.tog button.on{background:var(--hdr);color:#fff;border-color:var(--hdr)}
+.tog.shift button.on{background:#7c3aed;border-color:#7c3aed}
+.sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.dok{background:var(--grn)}
+main{flex:1;padding:var(--g);display:grid;gap:var(--g);grid-template-rows:auto auto 1fr auto}
+.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--g)}
+.kpi{background:var(--card);border-radius:var(--r);padding:11px 13px;
+  box-shadow:var(--sh);border-top:3px solid transparent;position:relative;overflow:hidden}
+.kpi.c-bl{border-top-color:var(--acc2)} .kpi.c-or{border-top-color:var(--acc)}
+.kpi.c-rd{border-top-color:var(--red)}  .kpi.c-gn{border-top-color:var(--grn)}
+.kpi.c-am{border-top-color:var(--amb)}
+.kl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--sub);margin-bottom:3px}
+.kv{font-size:26px;font-weight:800;line-height:1}
+.ks{font-size:10px;color:var(--sub);margin-top:3px}
+.ki{position:absolute;top:9px;right:10px;font-size:20px;opacity:.12}
+.cgrid{display:grid;grid-template-columns:2fr 1fr;gap:var(--g)}
+.card{background:var(--card);border-radius:var(--r);padding:11px 13px;box-shadow:var(--sh);display:flex;flex-direction:column}
+.card h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:7px}
+.bgrid{display:grid;grid-template-columns:3fr 2fr;gap:var(--g)}
+.tcard{background:var(--card);border-radius:var(--r);padding:11px 13px;box-shadow:var(--sh);display:flex;flex-direction:column}
+.tcard h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:7px}
+.tw{overflow:auto;max-height:205px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{position:sticky;top:0;background:#f8fafc;padding:5px 8px;text-align:left;
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+  color:var(--sub);border-bottom:2px solid var(--bdr);white-space:nowrap;cursor:pointer}
+thead th:hover{color:var(--txt)}
+tbody td{padding:5px 8px;border-bottom:1px solid var(--bdr);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#f8fafc}
+.pill{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700}
+.pg{background:#dcfce7;color:#16a34a} .pa{background:#fef3c7;color:#b45309} .pr{background:#fee2e2;color:#dc2626}
+th.sa::after{content:' ↑'} th.sd::after{content:' ↓'}
+.mcard{background:var(--card);border-radius:var(--r);padding:11px 13px;box-shadow:var(--sh);display:flex;flex-direction:column}
+.mcard h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:7px}
+footer{background:var(--hdr);color:#94a3b8;font-size:10px;padding:5px 18px;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="hl">
+    <div class="co">PICL India Pvt. Ltd.</div>
+    <span class="dt">Manpower Monitoring Dashboard</span>
+  </div>
+  <div class="hr">
+    <span class="bdg" id="hdr-date">—</span>
+    <span class="bdg">Generated: 24 Jun 2026, 04:42 AM</span>
+  </div>
+</header>
+
+<main>
+
+<div class="fbar">
+  <label>Date</label>
+  <select id="flt-date" onchange="render()"></select>
+  <label>Section</label>
+  <select id="flt-sec" onchange="render()"><option value="">All Sections</option></select>
+  <div class="sep"></div>
+  <label>View</label>
+  <div class="tog" id="tog-view">
+    <button id="btn-all"    class="on" onclick="setView('all')">All</button>
+    <button id="btn-staff"            onclick="setView('staff')">Staff</button>
+    <button id="btn-worker"           onclick="setView('worker')">Workers</button>
+  </div>
+  <div class="sep"></div>
+  <label>Shift</label>
+  <div class="tog shift" id="tog-shift">
+    <button id="btn-sall"  class="on" onclick="setShift('all')">All</button>
+    <button id="btn-day"              onclick="setShift('day')">Day</button>
+    <button id="btn-night"            onclick="setShift('night')">Night</button>
+  </div>
+  <span style="margin-left:auto;font-size:10px;color:var(--sub)">
+    <span class="sdot dok"></span>Data up to: 24/06/2026
+  </span>
+</div>
+
+<div class="krow">
+  <div class="kpi c-bl">
+    <div class="kl">Approved</div><div class="kv" id="kv-app">—</div>
+    <div class="ks" id="ks-app">Sanctioned strength</div><div class="ki">👥</div>
+  </div>
+  <div class="kpi c-or">
+    <div class="kl">Present</div><div class="kv" id="kv-pre">—</div>
+    <div class="ks" id="ks-pre">—</div><div class="ki">✅</div>
+  </div>
+  <div class="kpi c-rd" id="kpi-sho">
+    <div class="kl">Shortfall / Surplus</div><div class="kv" id="kv-sho">—</div>
+    <div class="ks" id="ks-sho">—</div><div class="ki">⚠️</div>
+  </div>
+  <div class="kpi c-gn">
+    <div class="kl" id="kl-ot">On Time ≤ 09:05</div><div class="kv" id="kv-ot">—</div>
+    <div class="ks" id="ks-ot">—</div><div class="ki">⏰</div>
+  </div>
+  <div class="kpi c-am">
+    <div class="kl" id="kl-ea">Early ≤ 08:50</div><div class="kv" id="kv-ea">—</div>
+    <div class="ks" id="ks-ea">—</div><div class="ki">🌅</div>
+  </div>
+</div>
+
+<div class="cgrid">
+  <div class="card">
+    <h3 id="ch-sec-title">Section-wise: Approved vs Present</h3>
+    <canvas id="ch-sec" style="max-height:220px"></canvas>
+  </div>
+  <div class="card">
+    <h3 id="ch-pun-title">Punctuality Breakdown</h3>
+    <canvas id="ch-pun" style="max-height:220px"></canvas>
+  </div>
+</div>
+
+<div class="bgrid">
+  <div class="tcard">
+    <h3>Section Detail &nbsp;<span id="tbl-lbl" style="font-weight:400;text-transform:none;color:var(--sub)"></span></h3>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th onclick="srt(0)">Section</th>
+          <th onclick="srt(1)">Approved</th>
+          <th onclick="srt(2)">Present</th>
+          <th onclick="srt(3)">Shortfall / Surplus</th>
+          <th onclick="srt(4)" id="th-ot">On Time %</th>
+          <th onclick="srt(5)" id="th-ea">Early %</th>
+          <th onclick="srt(6)">Att %</th>
+          <th onclick="srt(7)">Status</th>
+        </tr></thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="mcard">
+    <h3 id="mon-title">Monthly Avg Attendance %</h3>
+    <canvas id="ch-mon" style="max-height:200px"></canvas>
+  </div>
+</div>
+
+</main>
+<footer>
+  <span>PICL India Pvt. Ltd. | Manpower Monitoring Dashboard</span>
+  <span>Generated: 24 Jun 2026, 04:42 AM</span>
+</footer>
+</div>
+
+<script>
+const ATT      = [{"date": "24/06/2026", "section": "QA", "present": 46, "staff_present": 15, "worker_present": 31, "day_present": 46, "staff_day_present": 15, "worker_day_present": 31, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 43, "staff_day_ontime": 13, "worker_day_ontime": 30, "day_early": 25, "staff_day_early": 2, "worker_day_early": 23, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "P - REPAIRING", "present": 16, "staff_present": 0, "worker_present": 16, "day_present": 16, "staff_day_present": 0, "worker_day_present": 16, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 15, "staff_day_ontime": 0, "worker_day_ontime": 15, "day_early": 14, "staff_day_early": 0, "worker_day_early": 14, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "FACILITY MANAGEMENT", "present": 18, "staff_present": 0, "worker_present": 18, "day_present": 18, "staff_day_present": 0, "worker_day_present": 18, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 2, "staff_day_ontime": 0, "worker_day_ontime": 2, "day_early": 0, "staff_day_early": 0, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "SECURITY", "present": 5, "staff_present": 3, "worker_present": 2, "day_present": 5, "staff_day_present": 3, "worker_day_present": 2, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 3, "staff_day_ontime": 2, "worker_day_ontime": 1, "day_early": 2, "staff_day_early": 1, "worker_day_early": 1, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "HORTICULTURE", "present": 1, "staff_present": 0, "worker_present": 1, "day_present": 1, "staff_day_present": 0, "worker_day_present": 1, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 0, "staff_day_ontime": 0, "worker_day_ontime": 0, "day_early": 0, "staff_day_early": 0, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "P - VARNISH AREA", "present": 18, "staff_present": 1, "worker_present": 17, "day_present": 18, "staff_day_present": 1, "worker_day_present": 17, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 18, "staff_day_ontime": 1, "worker_day_ontime": 17, "day_early": 13, "staff_day_early": 0, "worker_day_early": 13, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "INNOVATION", "present": 3, "staff_present": 1, "worker_present": 2, "day_present": 3, "staff_day_present": 1, "worker_day_present": 2, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 3, "staff_day_ontime": 1, "worker_day_ontime": 2, "day_early": 1, "staff_day_early": 0, "worker_day_early": 1, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "STORE", "present": 22, "staff_present": 4, "worker_present": 18, "day_present": 22, "staff_day_present": 4, "worker_day_present": 18, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 22, "staff_day_ontime": 4, "worker_day_ontime": 18, "day_early": 14, "staff_day_early": 1, "worker_day_early": 13, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "P - CEILING FAN", "present": 49, "staff_present": 2, "worker_present": 47, "day_present": 49, "staff_day_present": 2, "worker_day_present": 47, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 49, "staff_day_ontime": 2, "worker_day_ontime": 47, "day_early": 41, "staff_day_early": 2, "worker_day_early": 39, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "MAINTENANCE", "present": 16, "staff_present": 5, "worker_present": 11, "day_present": 16, "staff_day_present": 5, "worker_day_present": 11, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 15, "staff_day_ontime": 4, "worker_day_ontime": 11, "day_early": 10, "staff_day_early": 2, "worker_day_early": 8, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "RESEARCH & DEVELOPMENT", "present": 121, "staff_present": 58, "worker_present": 63, "day_present": 121, "staff_day_present": 58, "worker_day_present": 63, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 97, "staff_day_ontime": 37, "worker_day_ontime": 60, "day_early": 34, "staff_day_early": 9, "worker_day_early": 25, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "HR", "present": 5, "staff_present": 5, "worker_present": 0, "day_present": 5, "staff_day_present": 5, "worker_day_present": 0, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 5, "staff_day_ontime": 5, "worker_day_ontime": 0, "day_early": 2, "staff_day_early": 2, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "IT INFRASTRUCTURE", "present": 2, "staff_present": 2, "worker_present": 0, "day_present": 2, "staff_day_present": 2, "worker_day_present": 0, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 2, "staff_day_ontime": 2, "worker_day_ontime": 0, "day_early": 1, "staff_day_early": 1, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "P - SHELL AREA", "present": 19, "staff_present": 0, "worker_present": 19, "day_present": 19, "staff_day_present": 0, "worker_day_present": 19, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 19, "staff_day_ontime": 0, "worker_day_ontime": 19, "day_early": 17, "staff_day_early": 0, "worker_day_early": 17, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "P - MOTOR ASSEMBLY", "present": 211, "staff_present": 4, "worker_present": 207, "day_present": 211, "staff_day_present": 4, "worker_day_present": 207, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 210, "staff_day_ontime": 4, "worker_day_ontime": 206, "day_early": 171, "staff_day_early": 1, "worker_day_early": 170, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "P - WINDING", "present": 121, "staff_present": 4, "worker_present": 117, "day_present": 121, "staff_day_present": 4, "worker_day_present": 117, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 121, "staff_day_ontime": 4, "worker_day_ontime": 117, "day_early": 82, "staff_day_early": 2, "worker_day_early": 80, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "P - BLDC", "present": 36, "staff_present": 4, "worker_present": 32, "day_present": 36, "staff_day_present": 4, "worker_day_present": 32, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 36, "staff_day_ontime": 4, "worker_day_ontime": 32, "day_early": 27, "staff_day_early": 0, "worker_day_early": 27, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "TOOL ROOM", "present": 7, "staff_present": 1, "worker_present": 6, "day_present": 7, "staff_day_present": 1, "worker_day_present": 6, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 7, "staff_day_ontime": 1, "worker_day_ontime": 6, "day_early": 4, "staff_day_early": 0, "worker_day_early": 4, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "CAFETERIA", "present": 1, "staff_present": 0, "worker_present": 1, "day_present": 1, "staff_day_present": 0, "worker_day_present": 1, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 1, "staff_day_ontime": 0, "worker_day_ontime": 1, "day_early": 1, "staff_day_early": 0, "worker_day_early": 1, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "LOGISTICS", "present": 10, "staff_present": 0, "worker_present": 10, "day_present": 10, "staff_day_present": 0, "worker_day_present": 10, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 10, "staff_day_ontime": 0, "worker_day_ontime": 10, "day_early": 9, "staff_day_early": 0, "worker_day_early": 9, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "PROCESS ENGINEERING", "present": 1, "staff_present": 1, "worker_present": 0, "day_present": 1, "staff_day_present": 1, "worker_day_present": 0, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 1, "staff_day_ontime": 1, "worker_day_ontime": 0, "day_early": 1, "staff_day_early": 1, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "PLANNING AND CONTROL", "present": 2, "staff_present": 2, "worker_present": 0, "day_present": 2, "staff_day_present": 2, "worker_day_present": 0, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 2, "staff_day_ontime": 2, "worker_day_ontime": 0, "day_early": 2, "staff_day_early": 2, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "ACCOUNTS", "present": 6, "staff_present": 6, "worker_present": 0, "day_present": 6, "staff_day_present": 6, "worker_day_present": 0, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 5, "staff_day_ontime": 5, "worker_day_ontime": 0, "day_early": 1, "staff_day_early": 1, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "TRAVEL & RECEPTION", "present": 1, "staff_present": 0, "worker_present": 1, "day_present": 1, "staff_day_present": 0, "worker_day_present": 1, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 1, "staff_day_ontime": 0, "worker_day_ontime": 1, "day_early": 0, "staff_day_early": 0, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "MARKETING", "present": 1, "staff_present": 1, "worker_present": 0, "day_present": 1, "staff_day_present": 1, "worker_day_present": 0, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 1, "staff_day_ontime": 1, "worker_day_ontime": 0, "day_early": 0, "staff_day_early": 0, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "PURCHASE", "present": 8, "staff_present": 7, "worker_present": 1, "day_present": 8, "staff_day_present": 7, "worker_day_present": 1, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 6, "staff_day_ontime": 5, "worker_day_ontime": 1, "day_early": 0, "staff_day_early": 0, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}, {"date": "24/06/2026", "section": "BUSINESS DEVELOPMENT", "present": 1, "staff_present": 1, "worker_present": 0, "day_present": 1, "staff_day_present": 1, "worker_day_present": 0, "night_present": 0, "staff_night_present": 0, "worker_night_present": 0, "day_ontime": 0, "staff_day_ontime": 0, "worker_day_ontime": 0, "day_early": 0, "staff_day_early": 0, "worker_day_early": 0, "night_ontime": 0, "staff_night_ontime": 0, "worker_night_ontime": 0, "night_early": 0, "staff_night_early": 0, "worker_night_early": 0}];
+const APPROVED = {"FACILITY MANAGEMENT": {"classification": "FACILITY MANAGEMENT", "dept": "ADMIN", "code": "ADMIN", "workers_day": 18, "workers_night": 0, "workers_total": 18, "staff_day": 0, "staff_night": 0, "staff_total": 0, "total_day": 18, "total_night": 0, "total_approved": 18}, "HORTICULTURE": {"classification": "HORTICULTURE", "dept": "ADMIN", "code": "ADMIN", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 0, "staff_night": 0, "staff_total": 0, "total_day": 0, "total_night": 0, "total_approved": 0}, "HR": {"classification": "HR", "dept": "HR", "code": "ADMIN", "workers_day": 1, "workers_night": 1, "workers_total": 2, "staff_day": 5, "staff_night": 0, "staff_total": 5, "total_day": 6, "total_night": 1, "total_approved": 7}, "CAFETERIA": {"classification": "CAFETERIA", "dept": "ADMIN", "code": "ADMIN", "workers_day": 1, "workers_night": 0, "workers_total": 1, "staff_day": 0, "staff_night": 0, "staff_total": 0, "total_day": 1, "total_night": 0, "total_approved": 1}, "TRAVEL & RECEPTION": {"classification": "TRAVEL & RECEPTION", "dept": "ADMIN", "code": "ADMIN", "workers_day": 1, "workers_night": 0, "workers_total": 1, "staff_day": 0, "staff_night": 0, "staff_total": 0, "total_day": 1, "total_night": 0, "total_approved": 1}, "INNOVATION": {"classification": "INNOVATION", "dept": "INNOVATION", "code": "INNO", "workers_day": 2, "workers_night": 0, "workers_total": 2, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 3, "total_night": 0, "total_approved": 3}, "IT INFRASTRUCTURE": {"classification": "IT INFRASTRUCTURE", "dept": "IT", "code": "IT", "workers_day": 1, "workers_night": 0, "workers_total": 1, "staff_day": 3, "staff_night": 0, "staff_total": 3, "total_day": 4, "total_night": 0, "total_approved": 4}, "LOGISTICS": {"classification": "LOGISTICS", "dept": "SCM", "code": "LOG", "workers_day": 12, "workers_night": 0, "workers_total": 12, "staff_day": 0, "staff_night": 0, "staff_total": 0, "total_day": 12, "total_night": 0, "total_approved": 12}, "MAINTENANCE": {"classification": "MAINTENANCE", "dept": "MAINTENANCE", "code": "MNT", "workers_day": 15, "workers_night": 2, "workers_total": 17, "staff_day": 6, "staff_night": 0, "staff_total": 6, "total_day": 21, "total_night": 2, "total_approved": 23}, "P - REPAIRING": {"classification": "P - REPAIRING", "dept": "PRODUCTION", "code": "PROD", "workers_day": 15, "workers_night": 0, "workers_total": 15, "staff_day": 0, "staff_night": 0, "staff_total": 0, "total_day": 15, "total_night": 0, "total_approved": 15}, "P - WINDING": {"classification": "P - WINDING", "dept": "PRODUCTION", "code": "PROD", "workers_day": 250, "workers_night": 0, "workers_total": 250, "staff_day": 5, "staff_night": 0, "staff_total": 5, "total_day": 255, "total_night": 0, "total_approved": 255}, "P - MOTOR ASSEMBLY": {"classification": "P - MOTOR ASSEMBLY", "dept": "PRODUCTION", "code": "PROD", "workers_day": 285, "workers_night": 0, "workers_total": 285, "staff_day": 7, "staff_night": 0, "staff_total": 7, "total_day": 292, "total_night": 0, "total_approved": 292}, "P - VARNISH AREA": {"classification": "P - VARNISH AREA", "dept": "PRODUCTION", "code": "PROD", "workers_day": 23, "workers_night": 10, "workers_total": 33, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 24, "total_night": 10, "total_approved": 34}, "P - BLDC": {"classification": "P - BLDC", "dept": "PRODUCTION", "code": "PROD", "workers_day": 70, "workers_night": 0, "workers_total": 70, "staff_day": 6, "staff_night": 0, "staff_total": 6, "total_day": 76, "total_night": 0, "total_approved": 76}, "P - CEILING FAN": {"classification": "P - CEILING FAN", "dept": "PRODUCTION", "code": "PROD", "workers_day": 35, "workers_night": 0, "workers_total": 35, "staff_day": 2, "staff_night": 0, "staff_total": 2, "total_day": 37, "total_night": 0, "total_approved": 37}, "P - SHELL AREA": {"classification": "P - SHELL AREA", "dept": "PRODUCTION", "code": "PROD", "workers_day": 23, "workers_night": 16, "workers_total": 39, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 24, "total_night": 16, "total_approved": 40}, "PURCHASE": {"classification": "PURCHASE", "dept": "PURCHASE", "code": "PURC", "workers_day": 1, "workers_night": 0, "workers_total": 1, "staff_day": 8, "staff_night": 0, "staff_total": 8, "total_day": 9, "total_night": 0, "total_approved": 9}, "QA": {"classification": "QA", "dept": "QUALITY", "code": "QA", "workers_day": 41, "workers_night": 3, "workers_total": 44, "staff_day": 20, "staff_night": 0, "staff_total": 20, "total_day": 61, "total_night": 3, "total_approved": 64}, "RESEARCH & DEVELOPMENT": {"classification": "RESEARCH & DEVELOPMENT", "dept": "RESEARCH & DEVELOPMENT", "code": "R&D", "workers_day": 70, "workers_night": 0, "workers_total": 70, "staff_day": 72, "staff_night": 0, "staff_total": 72, "total_day": 142, "total_night": 0, "total_approved": 142}, "SECURITY": {"classification": "SECURITY", "dept": "SECURITY AND SAFETY", "code": "SEC", "workers_day": 6, "workers_night": 3, "workers_total": 9, "staff_day": 3, "staff_night": 0, "staff_total": 3, "total_day": 9, "total_night": 3, "total_approved": 12}, "STORE": {"classification": "STORE", "dept": "SCM", "code": "STR", "workers_day": 15, "workers_night": 2, "workers_total": 17, "staff_day": 6, "staff_night": 0, "staff_total": 6, "total_day": 21, "total_night": 2, "total_approved": 23}, "TOOL ROOM": {"classification": "TOOL ROOM", "dept": "TOOL ROOM", "code": "TR", "workers_day": 3, "workers_night": 0, "workers_total": 3, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 4, "total_night": 0, "total_approved": 4}, "ACCOUNTS": {"classification": "Accounts", "dept": "Accounts", "code": "", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 7, "staff_night": 0, "staff_total": 7, "total_day": 7, "total_night": 0, "total_approved": 7}, "PLANNING AND CONTROL": {"classification": "Planning And Control", "dept": "Planning And Control", "code": "", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 3, "staff_night": 0, "staff_total": 3, "total_day": 3, "total_night": 0, "total_approved": 3}, "MOTOR DIVISION": {"classification": "Motor Division", "dept": "Motor Division", "code": "", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 1, "total_night": 0, "total_approved": 1}, "MARKETING": {"classification": "Marketing", "dept": "Marketing", "code": "", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 2, "staff_night": 0, "staff_total": 2, "total_day": 2, "total_night": 0, "total_approved": 2}, "PROCESS ENGINEERING": {"classification": "Process Engineering", "dept": "Process Engineering", "code": "", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 1, "total_night": 0, "total_approved": 1}, "SECRETERIAL": {"classification": "Secreterial", "dept": "Secreterial", "code": "", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 1, "total_night": 0, "total_approved": 1}, "BUSINESS DEVELOPMENT": {"classification": "Business Development", "dept": "Business Development", "code": "", "workers_day": 0, "workers_night": 0, "workers_total": 0, "staff_day": 1, "staff_night": 0, "staff_total": 1, "total_day": 1, "total_night": 0, "total_approved": 1}};
+const MONTHLY  = {"FACILITY MANAGEMENT": {"all_all": 100.0, "all_day": 100.0, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 100.0, "worker_day": 100.0, "worker_night": 0}, "HORTICULTURE": {"all_all": 0, "all_day": 0, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}, "HR": {"all_all": 71.4, "all_day": 83.3, "all_night": 0.0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 0.0, "worker_day": 0.0, "worker_night": 0.0}, "CAFETERIA": {"all_all": 100.0, "all_day": 100.0, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 100.0, "worker_day": 100.0, "worker_night": 0}, "TRAVEL & RECEPTION": {"all_all": 100.0, "all_day": 100.0, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 100.0, "worker_day": 100.0, "worker_night": 0}, "INNOVATION": {"all_all": 100.0, "all_day": 100.0, "all_night": 0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 100.0, "worker_day": 100.0, "worker_night": 0}, "IT INFRASTRUCTURE": {"all_all": 50.0, "all_day": 50.0, "all_night": 0, "staff_all": 66.7, "staff_day": 66.7, "staff_night": 0, "worker_all": 0.0, "worker_day": 0.0, "worker_night": 0}, "LOGISTICS": {"all_all": 83.3, "all_day": 83.3, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 83.3, "worker_day": 83.3, "worker_night": 0}, "MAINTENANCE": {"all_all": 69.6, "all_day": 76.2, "all_night": 0.0, "staff_all": 83.3, "staff_day": 83.3, "staff_night": 0, "worker_all": 64.7, "worker_day": 73.3, "worker_night": 0.0}, "P - REPAIRING": {"all_all": 100, "all_day": 100, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 100, "worker_day": 100, "worker_night": 0}, "P - WINDING": {"all_all": 47.5, "all_day": 47.5, "all_night": 0, "staff_all": 80.0, "staff_day": 80.0, "staff_night": 0, "worker_all": 46.8, "worker_day": 46.8, "worker_night": 0}, "P - MOTOR ASSEMBLY": {"all_all": 72.3, "all_day": 72.3, "all_night": 0, "staff_all": 57.1, "staff_day": 57.1, "staff_night": 0, "worker_all": 72.6, "worker_day": 72.6, "worker_night": 0}, "P - VARNISH AREA": {"all_all": 52.9, "all_day": 75.0, "all_night": 0.0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 51.5, "worker_day": 73.9, "worker_night": 0.0}, "P - BLDC": {"all_all": 47.4, "all_day": 47.4, "all_night": 0, "staff_all": 66.7, "staff_day": 66.7, "staff_night": 0, "worker_all": 45.7, "worker_day": 45.7, "worker_night": 0}, "P - CEILING FAN": {"all_all": 100, "all_day": 100, "all_night": 0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 100, "worker_day": 100, "worker_night": 0}, "P - SHELL AREA": {"all_all": 47.5, "all_day": 79.2, "all_night": 0.0, "staff_all": 0.0, "staff_day": 0.0, "staff_night": 0, "worker_all": 48.7, "worker_day": 82.6, "worker_night": 0.0}, "PURCHASE": {"all_all": 88.9, "all_day": 88.9, "all_night": 0, "staff_all": 87.5, "staff_day": 87.5, "staff_night": 0, "worker_all": 100.0, "worker_day": 100.0, "worker_night": 0}, "QA": {"all_all": 71.9, "all_day": 75.4, "all_night": 0.0, "staff_all": 75.0, "staff_day": 75.0, "staff_night": 0, "worker_all": 70.5, "worker_day": 75.6, "worker_night": 0.0}, "RESEARCH & DEVELOPMENT": {"all_all": 85.2, "all_day": 85.2, "all_night": 0, "staff_all": 80.6, "staff_day": 80.6, "staff_night": 0, "worker_all": 90.0, "worker_day": 90.0, "worker_night": 0}, "SECURITY": {"all_all": 41.7, "all_day": 55.6, "all_night": 0.0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 22.2, "worker_day": 33.3, "worker_night": 0.0}, "STORE": {"all_all": 95.7, "all_day": 100, "all_night": 0.0, "staff_all": 66.7, "staff_day": 66.7, "staff_night": 0, "worker_all": 100, "worker_day": 100, "worker_night": 0.0}, "TOOL ROOM": {"all_all": 100, "all_day": 100, "all_night": 0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 100, "worker_day": 100, "worker_night": 0}, "ACCOUNTS": {"all_all": 85.7, "all_day": 85.7, "all_night": 0, "staff_all": 85.7, "staff_day": 85.7, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}, "PLANNING AND CONTROL": {"all_all": 66.7, "all_day": 66.7, "all_night": 0, "staff_all": 66.7, "staff_day": 66.7, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}, "MOTOR DIVISION": {"all_all": 0, "all_day": 0, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}, "MARKETING": {"all_all": 50.0, "all_day": 50.0, "all_night": 0, "staff_all": 50.0, "staff_day": 50.0, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}, "PROCESS ENGINEERING": {"all_all": 100.0, "all_day": 100.0, "all_night": 0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}, "SECRETERIAL": {"all_all": 0, "all_day": 0, "all_night": 0, "staff_all": 0, "staff_day": 0, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}, "BUSINESS DEVELOPMENT": {"all_all": 100.0, "all_day": 100.0, "all_night": 0, "staff_all": 100.0, "staff_day": 100.0, "staff_night": 0, "worker_all": 0, "worker_day": 0, "worker_night": 0}};
+const ALL_DATES= ["24/06/2026"];
+const SECTIONS = ["FACILITY MANAGEMENT", "HORTICULTURE", "HR", "CAFETERIA", "TRAVEL & RECEPTION", "INNOVATION", "IT INFRASTRUCTURE", "LOGISTICS", "MAINTENANCE", "P - REPAIRING", "P - WINDING", "P - MOTOR ASSEMBLY", "P - VARNISH AREA", "P - BLDC", "P - CEILING FAN", "P - SHELL AREA", "PURCHASE", "QA", "RESEARCH & DEVELOPMENT", "SECURITY", "STORE", "TOOL ROOM", "ACCOUNTS", "PLANNING AND CONTROL", "MOTOR DIVISION", "MARKETING", "PROCESS ENGINEERING", "SECRETERIAL", "BUSINESS DEVELOPMENT"];
+
+let VIEW = 'all', SHIFT = 'all', SUNDAY = false;
+let sortCol = 0, sortDir = 1, tableRows = [];
+let CH = {};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const ds = document.getElementById('flt-date');
+  ds.innerHTML = ALL_DATES.map((d,i)=>
+    `<option value="${d}" ${i===0?'selected':''}>${d}</option>`).join('');
+  const ss = document.getElementById('flt-sec');
+  ss.innerHTML = '<option value="">All Sections</option>' +
+    SECTIONS.filter(s=>APPROVED[s]&&APPROVED[s].total_approved>0)
+             .map(s=>`<option value="${s}">${s}</option>`).join('');
+  render();
+});
+
+function setView(v) {
+  VIEW = v;
+  ['all','staff','worker'].forEach(x=>
+    document.getElementById('btn-'+x).classList.toggle('on', x===v));
+  render();
+}
+
+function setShift(s) {
+  SHIFT = s;
+  ['sall','day','night'].forEach(x=>
+    document.getElementById('btn-'+x).classList.toggle('on', x==='sall'?s==='all':x===s));
+  render();
+}
+
+// ── Accessors — driven by VIEW + SHIFT ───────────────────────────────────────
+function getPresent(r) {
+  if (VIEW==='staff') {
+    return SHIFT==='day' ? r.staff_day_present : SHIFT==='night' ? r.staff_night_present : r.staff_present;
+  } else if (VIEW==='worker') {
+    return SHIFT==='day' ? r.worker_day_present : SHIFT==='night' ? r.worker_night_present : r.worker_present;
+  } else {
+    return SHIFT==='day' ? r.day_present : SHIFT==='night' ? r.night_present : r.present;
+  }
+}
+
+function getPunctPre(r) {
+  // punctuality reference group: day=general/M shifts, night=N9
+  if (VIEW==='staff') {
+    return SHIFT==='night' ? r.staff_night_present : r.staff_day_present;
+  } else if (VIEW==='worker') {
+    return SHIFT==='night' ? r.worker_night_present : r.worker_day_present;
+  } else {
+    return SHIFT==='night' ? r.night_present : r.day_present;
+  }
+}
+
+function getOnTime(r) {
+  if (VIEW==='staff')  return SHIFT==='night' ? r.staff_night_ontime  : r.staff_day_ontime;
+  if (VIEW==='worker') return SHIFT==='night' ? r.worker_night_ontime : r.worker_day_ontime;
+  return SHIFT==='night' ? r.night_ontime : r.day_ontime;
+}
+
+function getEarly(r) {
+  if (VIEW==='staff')  return SHIFT==='night' ? r.staff_night_early  : r.staff_day_early;
+  if (VIEW==='worker') return SHIFT==='night' ? r.worker_night_early : r.worker_day_early;
+  return SHIFT==='night' ? r.night_early : r.day_early;
+}
+
+function getApproved(s) {
+  const a = APPROVED[s]; if (!a) return 0;
+  // On Sundays approved = present (no shortfall/surplus)
+  if (SUNDAY) {
+    const date = document.getElementById('flt-date').value;
+    const r = ATT.filter(x=>x.date===date).find(x=>x.section===s);
+    return r ? getPresent(r) : 0;
+  }
+  if (VIEW==='staff')  return SHIFT==='all' ? a.staff_total  : SHIFT==='day' ? a.staff_day  : a.staff_night;
+  if (VIEW==='worker') return SHIFT==='all' ? a.workers_total: SHIFT==='day' ? a.workers_day: a.workers_night;
+  return SHIFT==='all' ? a.total_approved : SHIFT==='day' ? a.total_day : a.total_night;
+}
+
+function getMonthlyKey() {
+  return `${VIEW==='staff'?'staff':VIEW==='worker'?'worker':'all'}_${SHIFT==='day'?'day':SHIFT==='night'?'night':'all'}`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const date  = document.getElementById('flt-date').value;
+  const sec   = document.getElementById('flt-sec').value;
+  const secUp = sec.toUpperCase();
+
+  document.getElementById('hdr-date').textContent = 'Date: '+(date||'—');
+  document.getElementById('tbl-lbl').textContent  = date ? '— '+date : '';
+
+  // Check if selected date is a Sunday
+  SUNDAY = (() => {
+    if (!date) return false;
+    const parts = date.split('/');
+    const d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+    return d.getDay() === 0;
+  })();
+
+  let recs = ATT.filter(r=>r.date===date);
+  if (sec) recs = recs.filter(r=>r.section===secUp);
+
+  const totPresent  = recs.reduce((s,r)=>s+getPresent(r), 0);
+  const totPunctPre = recs.reduce((s,r)=>s+getPunctPre(r), 0);
+  const totOnTime   = recs.reduce((s,r)=>s+getOnTime(r),  0);
+  const totEarly    = recs.reduce((s,r)=>s+getEarly(r),   0);
+
+  let totApproved = sec
+    ? getApproved(secUp)
+    : SECTIONS.reduce((s,k)=>s+getApproved(k), 0);
+
+  const diff   = totPresent - totApproved;
+  const attPct = totApproved>0 ? totPresent/totApproved*100 : 0;
+  const otPct  = totPunctPre>0 ? totOnTime/totPunctPre*100  : 0;
+  const eaPct  = totPunctPre>0 ? totEarly/totPunctPre*100   : 0;
+
+  const vLabel = VIEW==='staff'?'Staff':VIEW==='worker'?'Workers':'All';
+  const sLabel = SHIFT==='day'?'Day':SHIFT==='night'?'Night':'All Shifts';
+
+  // Update punctuality KPI labels based on shift
+  const otThresh = SHIFT==='night' ? '21:05' : '09:05';
+  const eaThresh = SHIFT==='night' ? '20:50' : '08:50';
+  const punctRef = SHIFT==='night' ? 'N9 shift' : 'General shift';
+  set('kl-ot', `On Time ≤ ${otThresh}`);
+  set('kl-ea', `Early ≤ ${eaThresh}`);
+
+  // KPIs
+  set('kv-app', totApproved.toLocaleString());
+  set('ks-app', SUNDAY ? 'Sunday — approved = present' : `${vLabel} — ${sLabel}`);
+  set('kv-pre', totPresent.toLocaleString());
+  set('ks-pre', totApproved>0 ? attPct.toFixed(1)+'% attendance rate' : '');
+
+  const shoCard = document.getElementById('kpi-sho');
+  if (diff > 0) {
+    shoCard.style.borderTopColor='var(--grn)';
+    set('kv-sho', '+'+diff.toLocaleString());
+    set('ks-sho', diff+' over approved (surplus)');
+  } else if (diff < 0) {
+    shoCard.style.borderTopColor='var(--red)';
+    set('kv-sho', Math.abs(diff).toLocaleString());
+    set('ks-sho', totApproved>0?(Math.abs(diff)/totApproved*100).toFixed(1)+'% deficit':'');
+  } else {
+    shoCard.style.borderTopColor='var(--grn)';
+    set('kv-sho','0'); set('ks-sho','Fully staffed');
+  }
+
+  set('kv-ot', totPunctPre>0 ? otPct.toFixed(1)+'%' : '—');
+  set('ks-ot', totPunctPre>0 ? totOnTime+' of '+totPunctPre+' ('+punctRef+')' : 'No data');
+  set('kv-ea', totPunctPre>0 ? eaPct.toFixed(1)+'%' : '—');
+  set('ks-ea', totPunctPre>0 ? totEarly+' of '+totPunctPre+' ('+punctRef+')' : '');
+
+  // Chart titles
+  document.getElementById('ch-sec-title').textContent =
+    `Section-wise: Approved vs Present — ${vLabel} | ${sLabel}`;
+  document.getElementById('ch-pun-title').textContent =
+    `Punctuality — ${SHIFT==='night'?'N9 Night':'General Day'} Shift | ${vLabel}`;
+  document.getElementById('mon-title').textContent =
+    `Monthly Avg Attendance % — ${vLabel} | ${sLabel}`;
+  document.getElementById('th-ot').textContent = `On Time ≤${otThresh} %`;
+  document.getElementById('th-ea').textContent = `Early ≤${eaThresh} %`;
+
+  renderSectionChart(recs, sec, secUp);
+  renderPunctChart(totOnTime, totEarly, totPunctPre);
+  renderTable(recs, sec, secUp);
+  renderMonthly(sec, secUp);
+}
+
+// ── Section chart ─────────────────────────────────────────────────────────────
+function renderSectionChart(recs, sec, secUp) {
+  const secMap={};
+  recs.forEach(r=>{secMap[r.section]=r;});
+  const rows = SECTIONS
+    .filter(s=>APPROVED[s]&&APPROVED[s].total_approved>0)
+    .filter(s=>!sec||s===secUp)
+    .map(s=>{
+      const r=secMap[s], app=getApproved(s), pre=r?getPresent(r):0;
+      return {label:abbr(s),approved:app,present:pre};
+    }).filter(r=>r.approved>0||r.present>0);
+
+  const ctx=document.getElementById('ch-sec').getContext('2d');
+  if(CH.sec)CH.sec.destroy();
+  CH.sec=new Chart(ctx,{
+    type:'bar',
+    data:{labels:rows.map(r=>r.label),datasets:[
+      {label:'Approved',data:rows.map(r=>r.approved),
+        backgroundColor:'rgba(26,115,200,.10)',borderColor:'#1a73c8',borderWidth:2,borderDash:[5,3]},
+      {label:'Present',data:rows.map(r=>r.present),
+        backgroundColor:'rgba(22,163,74,.75)',borderRadius:4}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{
+        legend:{position:'top',labels:{boxWidth:11,font:{size:10}}},
+        tooltip:{callbacks:{afterLabel:ctx=>{
+          if(ctx.dataset.label==='Present'){
+            const app=rows[ctx.dataIndex].approved;
+            return app>0?'Att: '+(ctx.raw/app*100).toFixed(1)+'%':'';
+          } return '';
+        }}}
+      },
+      scales:{
+        x:{stacked:false,grid:{display:false},ticks:{font:{size:9}}},
+        y:{beginAtZero:true,grid:{color:'#f0f4f8'},ticks:{font:{size:9}}}
+      }
+    }
+  });
+}
+
+// ── Punctuality donut ─────────────────────────────────────────────────────────
+function renderPunctChart(onTime, early, total) {
+  const late=Math.max(0,total-onTime), punctual=onTime-early;
+  const ctx=document.getElementById('ch-pun').getContext('2d');
+  if(CH.pun)CH.pun.destroy();
+  const eaLabel = SHIFT==='night' ? 'Early (≤20:50)' : 'Early (≤08:50)';
+  const otLabel = SHIFT==='night' ? 'On Time (20:50–21:05)' : 'On Time (08:50–09:05)';
+  CH.pun=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:[eaLabel, otLabel,'Late'],
+      datasets:[{data:[early,punctual,late],
+        backgroundColor:['#7c3aed','#16a34a','#dc2626'],
+        borderWidth:2,borderColor:'#fff',hoverOffset:4}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:false,cutout:'62%',
+      plugins:{
+        legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:7}},
+        tooltip:{callbacks:{label:ctx=>{
+          const pct=total>0?(ctx.raw/total*100).toFixed(1):0;
+          return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
+        }}}
+      }
+    }
+  });
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+function renderTable(recs, sec, secUp) {
+  const secMap={};
+  recs.forEach(r=>{secMap[r.section]=r;});
+  tableRows = SECTIONS
+    .filter(s=>APPROVED[s]&&APPROVED[s].total_approved>0)
+    .filter(s=>!sec||s===secUp)
+    .map(s=>{
+      const r=secMap[s], app=getApproved(s), pre=r?getPresent(r):0;
+      const pp=r?getPunctPre(r):0, ot=r?getOnTime(r):0, ea=r?getEarly(r):0;
+      const diff2=pre-app;
+      const attP=app>0?pre/app*100:0;
+      const otP=pp>0?ot/pp*100:null;
+      const eaP=pp>0?ea/pp*100:null;
+      return [s,app,pre,diff2,attP,otP,eaP];
+    });
+  drawTable();
+}
+
+function drawTable() {
+  const data=[...tableRows].sort((a,b)=>{
+    const av=a[sortCol],bv=b[sortCol];
+    if(av===null&&bv===null)return 0;
+    if(av===null)return 1;if(bv===null)return -1;
+    return typeof av==='string'?sortDir*av.localeCompare(bv):sortDir*(av-bv);
+  });
+  document.getElementById('tbl-body').innerHTML=data.map(r=>{
+    const [sec,app,pre,diff2,attP,otP,eaP]=r;
+    const status=attP>=100?'<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#16a34a"></span>'
+                :attP>=50 ?'<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#d97706"></span>'
+                          :'<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#dc2626"></span>';
+    const sfStyle=diff2>0?'color:#16a34a;font-weight:700':diff2<0?'color:#dc2626;font-weight:700':'color:#16a34a;font-weight:700';
+    const sfText=diff2>0?'+'+diff2:diff2<0?diff2:'0';
+    return `<tr>
+      <td><b>${sec}</b></td>
+      <td>${app}</td><td>${pre}</td>
+      <td style="${sfStyle}">${sfText}</td>
+      <td>${otP!==null?pctC(otP):'—'}</td>
+      <td>${eaP!==null?pctC(eaP):'—'}</td>
+      <td>${app>0?pctC(attP):'—'}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+}
+
+function srt(col){
+  sortDir=(sortCol===col)?sortDir*-1:1;sortCol=col;
+  document.querySelectorAll('thead th').forEach((th,i)=>{
+    th.classList.remove('sa','sd');
+    if(i===col)th.classList.add(sortDir===1?'sa':'sd');
+  });
+  drawTable();
+}
+
+// ── Monthly chart ─────────────────────────────────────────────────────────────
+function renderMonthly(sec, secUp) {
+  const mkey = getMonthlyKey();
+  const rows = SECTIONS
+    .filter(s=>APPROVED[s]&&APPROVED[s].total_approved>0)
+    .filter(s=>!sec||s===secUp)
+    .filter(s=>MONTHLY[s]&&MONTHLY[s][mkey]>0)
+    .map(s=>{return {label:abbr(s),val:MONTHLY[s][mkey]};} )
+    .sort((a,b)=>a.val-b.val)
+    .slice(0,14);
+
+  const ctx=document.getElementById('ch-mon').getContext('2d');
+  if(CH.mon)CH.mon.destroy();
+  CH.mon=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:rows.map(r=>r.label),
+      datasets:[{label:'Avg Att %',data:rows.map(r=>r.val),
+        backgroundColor:rows.map(r=>r.val>=90?'rgba(22,163,74,.75)':r.val>=75?'rgba(217,119,6,.75)':'rgba(220,38,38,.75)'),
+        borderRadius:4}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw}%`}}},
+      scales:{
+        x:{min:0,max:100,grid:{color:'#f0f4f8'},ticks:{font:{size:9},callback:v=>v+'%'}},
+        y:{grid:{display:false},ticks:{font:{size:9}}}
+      }
+    }
+  });
+}
+
+function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function pctC(v){
+  const c=v>=90?'#16a34a':v>=75?'#d97706':'#dc2626';
+  return `<span style="color:${c};font-weight:700">${v.toFixed(1)}%</span>`;
+}
+function abbr(s){
+  return s.replace('RESEARCH & DEVELOPMENT','R&D')
+          .replace('FACILITY MANAGEMENT','FACILITY MGMT')
+          .replace('P - MOTOR ASSEMBLY','MOTOR ASSY')
+          .replace('P - WINDING','WINDING')
+          .replace('P - VARNISH AREA','VARNISH')
+          .replace('P - CEILING FAN','CEILING FAN')
+          .replace('P - SHELL AREA','SHELL AREA')
+          .replace('P - REPAIRING','REPAIRING')
+          .replace('P - BLDC','BLDC')
+          .replace('IT INFRASTRUCTURE','IT INFRA')
+          .replace('TRAVEL & RECEPTION','TRAVEL/RECPTN')
+          .replace('PLANNING AND CONTROL','PLANNING & CTRL')
+          .replace('BUSINESS DEVELOPMENT','BIZ DEV')
+          .replace('COMPANY SECRETARY','CO. SECRETARY')
+          .replace('SECURITY AND SAFETY','SECURITY');
+}
+</script>
+</body>
+</html>

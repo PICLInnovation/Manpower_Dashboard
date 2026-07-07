@@ -133,7 +133,7 @@ footer{background:var(--hdr);color:#94a3b8;font-size:10px;padding:5px 18px;displ
   </div>
   <div class="hr">
     <span class="bdg" id="hdr-date">—</span>
-    <span class="bdg">Generated: 07 Jul 2026, 09:51 AM</span>
+    <span class="bdg">Generated: 07 Jul 2026, 09:58 AM</span>
   </div>
 </header>
 
@@ -233,7 +233,7 @@ footer{background:var(--hdr);color:#94a3b8;font-size:10px;padding:5px 18px;displ
 </main>
 <footer>
   <span>PICL India Pvt. Ltd. | Manpower Monitoring Dashboard</span>
-  <span>Generated: 07 Jul 2026, 09:51 AM</span>
+  <span>Generated: 07 Jul 2026, 09:58 AM</span>
 </footer>
 </div>
 
@@ -481,7 +481,8 @@ function renderMonthlyMode() {
     : ATT;
   if (sec) recs = recs.filter(r=>r.section===secUp);
 
-  const monthDates = [...new Set(recs.map(r=>r.date))];
+  const monthDates = [...new Set(recs.map(r=>r.date))]
+    .filter(d => { const p=d.split('/'); return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])).getDay()!==0; });
   const dayCount   = monthDates.length || 1;
 
   // Sum across all days
@@ -583,6 +584,10 @@ function renderPunctChartMonthly(recs, totPunctSum) {
 // ── Table MONTHLY ─────────────────────────────────────────────────────────────
 function renderTableMonthly(sec, secUp, snapKey, monthDates) {
   const mkey = getMonthlyKey();
+  // Exclude Sundays
+  const nonSunDates = monthDates
+    ? monthDates.filter(d=>{ const p=d.split('/'); return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])).getDay()!==0; })
+    : [];
   tableRows = SECTIONS
     .filter(s=>APPROVED[s]&&APPROVED[s].total_approved>0)
     .filter(s=>!sec||s===secUp)
@@ -592,14 +597,11 @@ function renderTableMonthly(sec, secUp, snapKey, monthDates) {
       const attP = avgObj?.[mkey] || 0;
       const avgP = app>0 ? attP/100*app : 0;
       const diff2= avgP - app;
-      // Punctuality: avg across month days
       let otSum=0, eaSum=0, ppSum=0;
-      if (monthDates) {
-        monthDates.forEach(date=>{
-          const r = ATT.filter(x=>x.date===date).find(x=>x.section===s);
-          if(r){ otSum+=getOnTime(r); eaSum+=getEarly(r); ppSum+=getPunctPre(r); }
-        });
-      }
+      nonSunDates.forEach(date=>{
+        const r = ATT.filter(x=>x.date===date).find(x=>x.section===s);
+        if(r){ otSum+=getOnTime(r); eaSum+=getEarly(r); ppSum+=getPunctPre(r); }
+      });
       const otP = ppSum>0?otSum/ppSum*100:null;
       const eaP = ppSum>0?eaSum/ppSum*100:null;
       return [s, app, parseFloat(avgP.toFixed(1)), parseFloat(diff2.toFixed(1)), attP, otP, eaP];

@@ -7,234 +7,341 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#f0f4f8;--card:#fff;--hdr:#0d2b4e;--acc:#e8530a;--acc2:#1a73c8;
-  --grn:#16a34a;--red:#dc2626;--amb:#d97706;--pur:#7c3aed;
-  --txt:#1e293b;--sub:#64748b;--bdr:#e2e8f0;--r:10px;--g:11px;
-  --sh:0 2px 8px rgba(0,0,0,.08);
+  --paper:#F2F3F0; --panel:#FAFBF9; --ink:#141C22; --mute:#5B676F; --rule:#CDD2CE; --rule-soft:#E0E4E0;
+  --present:#1E5E5A; --short:#A83A2F; --warn:#9A6A12; --early:#3C5A9A; --focus:#1D4ED8;
+  --on1:#34444F;--on2:#141C22;--on3:#0C1217;--onfg:#fff;--sel1:#fff;--sel2:#EEF0ED;--glass:rgba(255,255,255,.85);
+  --g1:#4B9A93;--g2:#2A7770;--g3:#1B5450;--appfill:rgba(20,28,34,.05);--shadow:rgba(20,28,34,.22);color-scheme:light;
+  --accA:#4A6572;--accO:#3A7D44;
+  --font:'Public Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+}
+[data-theme=dark]{
+  --paper:#0E1418;--panel:#162027;--ink:#E8EDEB;--mute:#92A0A9;--rule:#2D3A43;--rule-soft:#222E36;
+  --present:#3FA79E;--short:#E26B5C;--warn:#D9A23F;--early:#7C9CE3;--focus:#8AAEFF;
+  --accA:#7FA0B3;--accO:#5FB36C;
+  --on1:#F6F8F7;--on2:#DDE4E1;--on3:#C3CEC9;--onfg:#0E1418;--sel1:#1D2931;--sel2:#162027;--glass:rgba(255,255,255,.05);
+  --g1:#5FC4BA;--g2:#3FA79E;--g3:#2C8279;--appfill:rgba(232,237,235,.08);--shadow:rgba(0,0,0,.55);color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:13px}
-.wrap{width:100vw;min-height:100vh;display:flex;flex-direction:column}
-header{background:var(--hdr);color:#fff;padding:8px 18px;display:flex;align-items:center;
-  justify-content:space-between;gap:10px;border-bottom:3px solid var(--acc)}
-.hl{display:flex;align-items:center;gap:14px}
-.co{font-size:17px;font-weight:800}
-.dt{font-size:12px;font-weight:500;color:#cbd5e1;border-left:2px solid var(--acc);padding-left:12px}
-.hr{display:flex;align-items:center;gap:8px}
-.bdg{background:rgba(255,255,255,.12);border-radius:6px;padding:4px 10px;font-size:11px;color:#e2e8f0}
-.fbar{background:var(--card);border-radius:var(--r);padding:7px 14px;box-shadow:var(--sh);
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.fbar label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--sub)}
-.fbar select{border:1px solid var(--bdr);border-radius:6px;padding:4px 8px;font-size:12px;
-  color:var(--txt);background:#f8fafc;cursor:pointer}
-.fbar select:focus{outline:2px solid var(--acc2);border-color:transparent}
-.sep{width:1px;height:24px;background:var(--bdr);margin:0 4px}
-.tog{display:flex;gap:3px}
-.tog button{border:1px solid var(--bdr);border-radius:5px;padding:3px 11px;font-size:11px;
-  font-weight:700;cursor:pointer;background:#f8fafc;color:var(--sub);transition:all .15s}
-.tog button.on{background:var(--hdr);color:#fff;border-color:var(--hdr)}
-.tog.shift button.on{background:#7c3aed;border-color:#7c3aed}
-.sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
-.dok{background:var(--grn)}
-main{flex:1;padding:var(--g);display:grid;gap:var(--g);grid-template-rows:auto auto 1fr auto}
-.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--g)}
-.kpi{background:var(--card);border-radius:var(--r);padding:11px 13px;
-  box-shadow:var(--sh);border-top:3px solid transparent;position:relative;overflow:hidden}
-.kpi.c-bl{border-top-color:var(--acc2)} .kpi.c-or{border-top-color:var(--acc)}
-.kpi.c-rd{border-top-color:var(--red)}  .kpi.c-gn{border-top-color:var(--grn)}
-.kpi.c-am{border-top-color:var(--amb)}
-.kl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--sub);margin-bottom:3px}
-.kv{font-size:26px;font-weight:800;line-height:1}
-.ks{font-size:10px;color:var(--sub);margin-top:3px}
-.ki{position:absolute;top:9px;right:10px;font-size:20px;opacity:.12}
-.cgrid{display:grid;grid-template-columns:2fr 1fr;gap:var(--g)}
-.card{background:var(--card);border-radius:var(--r);padding:11px 13px;box-shadow:var(--sh);display:flex;flex-direction:column}
-.card h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:7px}
-.bgrid{display:grid;grid-template-columns:3fr 2fr;gap:var(--g)}
-.tcard{background:var(--card);border-radius:var(--r);padding:11px 13px;box-shadow:var(--sh);display:flex;flex-direction:column}
-.tcard h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:7px}
-.tw{overflow:auto;max-height:205px}
-table{width:100%;border-collapse:collapse;font-size:11px}
-thead th{position:sticky;top:0;background:#f8fafc;padding:5px 8px;text-align:left;
-  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
-  color:var(--sub);border-bottom:2px solid var(--bdr);white-space:nowrap;cursor:pointer}
-thead th:hover{color:var(--txt)}
-tbody td{padding:5px 8px;border-bottom:1px solid var(--bdr);white-space:nowrap}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:#f8fafc}
-.pill{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700}
-.pg{background:#dcfce7;color:#16a34a} .pa{background:#fef3c7;color:#b45309} .pr{background:#fee2e2;color:#dc2626}
-th.sa::after{content:' ↑'} th.sd::after{content:' ↓'}
-.mcard{background:var(--card);border-radius:var(--r);padding:11px 13px;box-shadow:var(--sh);display:flex;flex-direction:column}
-.mcard h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:7px}
-footer{background:var(--hdr);color:#94a3b8;font-size:10px;padding:5px 18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.45;
+  font-variant-numeric:tabular-nums}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:2px}
+.page{overflow-x:clip;max-width:1480px;margin:0 auto;padding:0 28px 28px}
 
-/* ── RESPONSIVE ─────────────────────────────────────────── */
-@media (max-width:768px){
-  header{padding:8px 12px;flex-wrap:wrap;gap:6px}
-  .co{font-size:13px}
-  .dt{font-size:9px;padding-left:8px;border-left:2px solid var(--acc)}
-  .hl{flex-wrap:wrap;gap:6px}
-  .bdg{font-size:10px;padding:3px 7px}
-  .hr .bdg:last-child{display:none} /* hide generated date on mobile */
+/* masthead */
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
+  padding:18px 0 14px;border-bottom:2px solid var(--ink)}
+.top h1{font-size:15px;font-weight:700;letter-spacing:.01em}
+.top h1 span{font-weight:400;color:var(--mute);margin-left:10px}
+.top .meta{font-size:12.5px;color:var(--mute);display:flex;gap:20px}
+.top .meta b{color:var(--ink);font-weight:600}
 
-  main{padding:8px;gap:8px;grid-template-rows:unset;display:flex;flex-direction:column}
+/* lede: staffing bar */
+.lede{padding:26px 0 22px}
+.lede h2{font-size:clamp(26px,3.4vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1.1;max-width:20ch}
+.lede .sub{margin-top:8px;color:var(--mute);font-size:13.5px;max-width:70ch}
+.gauge{position:relative;margin-top:20px;height:22px;background:var(--rule-soft)}
+.gauge .fill{position:absolute;inset:0 auto 0 0;background:var(--present);width:0}
+.gauge .gap{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,var(--short) 0 2px,transparent 2px 6px);
+  border:1px solid var(--short);border-left:0}
+.gauge .tick{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
+.gauge-key{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--mute)}
 
-  .fbar{padding:8px 10px;gap:8px}
-  .fbar label{font-size:10px}
-  .fbar select{font-size:12px;padding:5px 6px;max-width:140px}
-  .sep{display:none}
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-end;padding:14px 0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld>span{font-size:12px;color:var(--mute)}
+.fld select{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:6px 28px 6px 9px;
+  min-height:34px;cursor:pointer;max-width:200px}
+.fld select:disabled{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:6px 13px;min-height:34px;cursor:pointer;color:var(--mute);
+  border-right:1px solid var(--rule)}
+.seg button:last-child{border-right:0}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--ink);color:var(--onfg)}
+.asof{margin-left:auto;font-size:12px;color:var(--mute);align-self:flex-end}
 
-  /* KPI — 2 per row on mobile */
-  .krow{grid-template-columns:repeat(2,1fr);gap:8px}
-  .kpi:last-child{grid-column:span 2} /* last card full width if odd */
-  .kv{font-size:22px}
-  .kl{font-size:9px}
-  .ks{font-size:9px}
-  .ki{font-size:16px}
+/* key figures: one strip, divided by rules */
+.figs{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--rule)}
+.fig{padding:16px 18px 16px 0;margin-right:18px;border-right:1px solid var(--rule-soft)}
+.fig:last-child{border-right:0;margin-right:0}
+.fig .l{font-size:12.5px;color:var(--mute)}
+.fig .v{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-top:2px}
+.fig .s{font-size:12px;color:var(--mute);margin-top:2px;min-height:1.4em}
+.fig.neg .v{color:var(--short)} .fig.pos .v{color:var(--present)}
 
-  /* Charts — stack vertically */
-  .cgrid{grid-template-columns:1fr;gap:8px}
-  .card canvas{max-height:200px !important}
+/* panels */
+.cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:0 40px;padding-top:24px}
+.stack>section+section{margin-top:26px}
+section>h3{font-size:14px;font-weight:700;margin-bottom:2px}
+section>.note{font-size:12.5px;color:var(--mute);margin-bottom:10px}
+.cv{position:relative;height:300px}
+.cv.mon{height:420px}
 
-  /* Bottom — stack vertically */
-  .bgrid{grid-template-columns:1fr;gap:8px}
+/* punctuality bar */
+.pun{display:flex;height:26px;background:var(--rule-soft);margin:12px 0 10px}
+.pun i{display:block;height:100%}
+.pun-key{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12.5px}
+.pun-key span{display:flex;align-items:center;gap:6px}
+.pun-key em{width:10px;height:10px;display:inline-block;font-style:normal}
+.pun-key b{font-weight:600}
+.pun-empty{color:var(--mute);font-size:13px;padding:10px 0}
 
-  /* Table — scrollable */
-  .tw{max-height:260px}
-  table{font-size:11px}
-  thead th{font-size:9px;padding:5px 6px}
-  tbody td{padding:5px 6px}
+/* table */
+.tablewrap{margin-top:30px;border-top:2px solid var(--ink)}
+.thead-row{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 8px;gap:12px;flex-wrap:wrap}
+.thead-row h3{font-size:14px;font-weight:700}
+.thead-row .note{font-size:12.5px;color:var(--mute)}
+.tw{overflow:auto;max-height:440px;border-top:1px solid var(--rule)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{position:sticky;top:0;background:var(--paper);text-align:right;font-weight:600;font-size:12.5px;
+  color:var(--mute);border-bottom:1px solid var(--ink);padding:0;white-space:nowrap}
+thead th:first-child{text-align:left}
+thead th button{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;padding:9px 12px}
+thead th button:hover{color:var(--ink)}
+thead th button:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+th[aria-sort=ascending] button::after{content:' ▲';font-size:9px}
+th[aria-sort=descending] button::after{content:' ▼';font-size:9px}
+th[aria-sort] button{color:var(--ink)}
+tbody td{padding:8px 12px;border-bottom:1px solid var(--rule-soft);text-align:right;white-space:nowrap}
+tbody td:first-child{text-align:left;font-weight:600}
+tbody tr:hover{background:var(--panel)}
+.neg{color:var(--short)} .pos{color:var(--present)} .mid{color:var(--warn)}
+.attcell{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.attbar{width:70px;height:6px;background:var(--rule-soft);position:relative}
+.attbar i{position:absolute;inset:0 auto 0 0;display:block}
+.st{display:inline-flex;align-items:center;gap:6px}
+.st i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.empty-row td{text-align:left!important;color:var(--mute);padding:22px 12px!important;font-weight:400!important}
 
-  /* Monthly chart */
-  .mcard canvas{max-height:220px !important}
+footer{margin-top:28px;padding-top:12px;border-top:1px solid var(--rule);font-size:12px;color:var(--mute);
+  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 
-  footer{font-size:9px;padding:5px 10px}
-  footer span:last-child{display:none}
+@media (max-width:1024px){
+  .cols{grid-template-columns:minmax(0,1fr);gap:26px}
+  .figs{grid-template-columns:repeat(3,1fr)}
+  .fig:nth-child(3){border-right:0;margin-right:0}
+  .asof{margin-left:0;width:100%}
+}
+@media (max-width:600px){
+  .page{padding:0 16px 20px}
+  .figs{grid-template-columns:repeat(2,1fr)}
+  .fig{border-right:0;margin-right:0;padding-right:8px}
+  .fig .v{font-size:26px}
+  .cv-sec{display:none}                       /* numbers and table instead of the wide chart */
+  .attbar{display:none}
+  thead th:nth-child(2),tbody td:nth-child(2),thead th:nth-child(5),tbody td:nth-child(5),thead th:nth-child(6),tbody td:nth-child(6){display:none}
+  tbody td{padding:8px 8px}thead th button{padding:9px 8px}tbody td:first-child{white-space:normal}
+  .cols,.stack,.stack section{min-width:0}
+  .fld select{max-width:100%} .fld{flex:1 1 40%}
 }
 
-@media (max-width:480px){
-  .co{font-size:12px}
-  .dt{font-size:9px;padding-left:6px}
-  .krow{grid-template-columns:repeat(2,1fr)}
-  .kv{font-size:20px}
-  .fbar select{max-width:120px;font-size:11px}
-  .tog button{padding:3px 8px;font-size:10px}
-}
+/* gloss */
+.gauge{box-shadow:inset 0 1px 2px rgba(20,28,34,.18)}
+.gauge .fill{background:linear-gradient(180deg,var(--g1) 0%,var(--g2) 48%,var(--g3) 52%,var(--present) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55);overflow:hidden}
+.gauge .fill::after{content:'';position:absolute;top:0;bottom:0;width:90px;left:-120px;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);
+  animation:sheen 1.8s .4s ease-out 1 both}
+@keyframes sheen{to{left:110%}}
+.seg{box-shadow:inset 0 1px 2px rgba(20,28,34,.08)}
+.seg button.on{background:linear-gradient(180deg,var(--on1) 0%,var(--on2) 55%,var(--on3) 100%);color:var(--onfg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
+.fld select{background:linear-gradient(180deg,var(--sel1),var(--sel2));box-shadow:0 1px 1px rgba(20,28,34,.08)}
+.figs{background:linear-gradient(180deg,var(--glass),transparent 70%)}
+.fig{padding-left:2px}
+.attbar i{background-image:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0) 55%,rgba(0,0,0,.12))}
+.pie-row{display:flex;align-items:center;gap:26px;margin-top:10px;flex-wrap:wrap}
+.pie{position:relative;width:190px;height:190px;flex:0 0 auto;filter:drop-shadow(0 6px 8px var(--shadow))}
+.pie-row .pun-key{flex-direction:column;gap:10px;font-size:13.5px}
+.pie-row .pun-key em{width:12px;height:12px;border-radius:50%;box-shadow:inset 0 1px 1px rgba(255,255,255,.6)}
+@media (prefers-reduced-motion:reduce){.gauge .fill::after{animation:none;display:none}}
+
+/* spacing scale: 4 8 12 16 24 32 48 */
+:root{--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px}
+.page{padding:0 var(--s6) var(--s6)}
+.top{padding:var(--s5) 0 var(--s4)}
+.lede{padding:var(--s6) 0 var(--s5)}
+.lede .sub{margin-top:var(--s3)}
+.gauge{margin-top:var(--s5)}
+.gauge-key{margin-top:var(--s2)}
+.filters{gap:var(--s4) var(--s6);padding:var(--s5) 0}
+.fld{gap:var(--s2)}
+.figs{margin-top:0}
+.fig{padding:var(--s5) var(--s5) var(--s5) 0;margin-right:var(--s5)}
+.fig .v{margin-top:var(--s1);margin-bottom:var(--s1)}
+.cols{padding-top:var(--s6);gap:var(--s6) var(--s7)}
+.stack>section+section{margin-top:var(--s6)}
+section>h3{margin-bottom:var(--s1)}
+section>.note{margin-bottom:var(--s4);line-height:1.5}
+.pie-row{margin-top:var(--s2);gap:var(--s5)}
+.tablewrap{margin-top:var(--s7)}
+.thead-row{padding:var(--s4) 0 var(--s3)}
+thead th button{padding:var(--s3) var(--s3)}
+tbody td{padding:var(--s3) var(--s3)}
+footer{margin-top:var(--s7);padding-top:var(--s4)}
+@media (max-width:600px){.page{padding:0 var(--s4) var(--s5)} .fig{padding:var(--s4) var(--s3) var(--s4) 0;margin-right:0}
+  .filters{gap:var(--s3) var(--s4)} .lede{padding:var(--s5) 0} .cols{gap:var(--s6)}
+  tbody td{padding:var(--s3) var(--s2)}thead th button{padding:var(--s3) var(--s2)}}
+
+.lg{display:flex;gap:var(--s5);font-size:12.5px;margin-bottom:var(--s3)}
+.lg span{display:flex;align-items:center;gap:var(--s2)}
+.lg b{font-weight:400}
+.lg i{width:14px;height:10px;display:inline-block}
+.lg .o{background:var(--appfill);border:1.5px solid var(--ink)}
+.lg .p{background:linear-gradient(180deg,var(--g1),var(--present))}
+.scroll{max-height:560px;overflow-y:auto;overflow-x:hidden;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:var(--s2) var(--s3) var(--s2) 0;scrollbar-width:thin;scrollbar-color:var(--mute) transparent}
+.scroll::-webkit-scrollbar{width:8px}.scroll::-webkit-scrollbar-thumb{background:var(--mute);border-radius:4px}
+.cv.mon{height:340px}
+.tw{max-height:380px}
+
+.theme{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:2px;background:var(--panel)}
+.theme button{border:0;background:transparent;cursor:pointer;width:30px;height:26px;border-radius:999px;font-size:14px;line-height:1;opacity:.55}
+.theme button[aria-pressed=true]{background:linear-gradient(180deg,var(--on1),var(--on3));opacity:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.top .meta{align-items:center}
+#btn-fs{font-family:'Segoe UI Symbol','Noto Sans Symbols 2','Noto Sans Symbols','Apple Symbols',system-ui,sans-serif;font-size:19px;opacity:1;color:var(--ink);font-weight:700}
+
+/* frame + bordered panels */
+body{padding:var(--s5)}
+.page{max-width:1680px;background:var(--panel);border:1px solid var(--rule);border-radius:8px;
+  padding:0 var(--s6) var(--s6);box-shadow:0 18px 40px -24px var(--shadow)}
+.lede h2{max-width:none}
+.cols{padding-top:var(--s5);gap:var(--s5)}
+.stack{display:flex;flex-direction:column;gap:var(--s5)}
+.stack>section+section{margin-top:0}
+.cols>section,.stack>section,.tablewrap{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:var(--s5)}
+.tablewrap{margin-top:var(--s5);padding-bottom:var(--s4)}
+.thead-row{padding-top:0}
+.scroll{background:transparent}
+footer{margin-top:var(--s5)}
+@media (max-width:600px){body{padding:0}.page{border:0;border-radius:0;padding:0 var(--s4) var(--s5)}
+  .cols>section,.stack>section,.tablewrap{padding:var(--s4)}}
+
+/* coloured key-figure boxes */
+.figs{gap:var(--s4);border-bottom:0;background:none;box-shadow:none;padding:var(--s5) 0 0}
+.fig{--c:var(--mute);margin:0;padding:var(--s4) var(--s5);border:1px solid color-mix(in srgb,var(--c) 38%,var(--rule));
+  border-radius:6px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 20%,var(--panel)) 0%,color-mix(in srgb,var(--c) 8%,var(--panel)) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 4px 0 0 var(--c)}
+.fig:nth-child(1){--c:var(--accA)}
+.fig:nth-child(2){--c:var(--present)}
+.fig:nth-child(4){--c:var(--accO)}
+.fig:nth-child(5){--c:var(--early)}
+.fig.neg{--c:var(--short)} .fig.pos{--c:var(--present)}
+.fig:last-child,.fig:nth-child(3){border-right:1px solid color-mix(in srgb,var(--c) 38%,var(--rule));margin:0}
+@media (max-width:600px){.fig{padding:var(--s3) var(--s4)}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);max-width:min(520px,90vw);padding:12px 16px;
+  background:var(--ink);color:var(--paper);border-radius:6px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+@media print{.filters{display:none}}
 </style>
+<script>
+(function(){var t=null;try{t=localStorage.getItem('picl-theme')}catch(e){}
+if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="wrap">
+<div class="page">
 
-<header>
-  <div class="hl">
-    <div class="co">PICL India Pvt. Ltd.</div>
-    <span class="dt">Manpower Monitoring Dashboard</span>
-  </div>
-  <div class="hr">
-    <span class="bdg" id="hdr-date">—</span>
-    <span class="bdg">Generated: 28 Nov 2026, 09:31 AM</span>
-  </div>
+<header class="top">
+  <h1>PICL India<span>Manpower monitoring</span></h1>
+  <div class="meta"><span>Showing <b id="hdr-date">—</b></span><span>Updated 28 Nov 2026, 11:32 AM</span>
+    <span class="theme" id="fs-wrap" role="group" aria-label="Full screen"><button id="btn-fs" onclick="toggleFS()" aria-label="Enter full screen" title="Full screen (Esc to exit)" aria-pressed="false">⛶</button></span>
+    <span class="theme" role="group" aria-label="Colour theme"><button id="th-light" onclick="setTheme('light')" aria-label="Light theme" title="Light theme" aria-pressed="true">☀️</button><button id="th-dark" onclick="setTheme('dark')" aria-label="Dark theme" title="Dark theme" aria-pressed="false">🌙</button></span></div>
 </header>
 
-<main>
-
-<div class="fbar">
-  <label>Month</label>
-  <select id="flt-month" onchange="onMonthChange()"></select>
-  <label>Date</label>
-  <select id="flt-date" onchange="render()"></select>
-  <label>Section</label>
-  <select id="flt-sec" onchange="render()"><option value="">All Sections</option></select>
-  <div class="sep"></div>
-  <label>Mode</label>
-  <div class="tog" id="tog-mode">
-    <button id="btn-daily"   class="on" onclick="setMode('daily')">Daily</button>
-    <button id="btn-monthly"           onclick="setMode('monthly')">Monthly Avg</button>
+<div class="lede">
+  <h2 id="headline">Loading attendance…</h2>
+  <p class="sub" id="lede-sub"></p>
+  <div class="gauge" role="img" id="gauge" aria-label="Present against approved strength">
+    <div class="fill" id="g-fill"></div><div class="gap" id="g-gap"></div><div class="tick" id="g-tick"></div>
   </div>
-  <div class="sep"></div>
-  <label>View</label>
-  <div class="tog" id="tog-view">
-    <button id="btn-all"    class="on" onclick="setView('all')">All</button>
-    <button id="btn-staff"            onclick="setView('staff')">Staff</button>
-    <button id="btn-worker"           onclick="setView('worker')">Workers</button>
-  </div>
-  <div class="sep"></div>
-  <label>Shift</label>
-  <div class="tog shift" id="tog-shift">
-    <button id="btn-sall"  class="on" onclick="setShift('all')">All</button>
-    <button id="btn-day"              onclick="setShift('day')">Day</button>
-    <button id="btn-night"            onclick="setShift('night')">Night</button>
-  </div>
-  <span style="margin-left:auto;font-size:10px;color:var(--sub)">
-    <span class="sdot dok"></span>Data up to: 28/11/2026
-  </span>
+  <div class="gauge-key"><span>0</span><span id="g-key">Approved strength</span></div>
 </div>
 
-<div class="krow">
-  <div class="kpi c-bl">
-    <div class="kl">Approved</div><div class="kv" id="kv-app">—</div>
-    <div class="ks" id="ks-app">Sanctioned strength</div><div class="ki">👥</div>
-  </div>
-  <div class="kpi c-or">
-    <div class="kl">Present</div><div class="kv" id="kv-pre">—</div>
-    <div class="ks" id="ks-pre">—</div><div class="ki">✅</div>
-  </div>
-  <div class="kpi c-rd" id="kpi-sho">
-    <div class="kl">Shortfall / Surplus</div><div class="kv" id="kv-sho">—</div>
-    <div class="ks" id="ks-sho">—</div><div class="ki">⚠️</div>
-  </div>
-  <div class="kpi c-gn">
-    <div class="kl" id="kl-ot">On Time ≤ 09:05</div><div class="kv" id="kv-ot">—</div>
-    <div class="ks" id="ks-ot">—</div><div class="ki">⏰</div>
-  </div>
-  <div class="kpi c-am">
-    <div class="kl" id="kl-ea">Early ≤ 08:50</div><div class="kv" id="kv-ea">—</div>
-    <div class="ks" id="ks-ea">—</div><div class="ki">🌅</div>
-  </div>
+<div class="filters" role="group" aria-label="Filters">
+  <label class="fld"><span>Month</span><select id="flt-month" onchange="onMonthChange()"></select></label>
+  <label class="fld"><span>Date</span><select id="flt-date" onchange="render()"></select></label>
+  <label class="fld"><span>Section</span><select id="flt-sec" onchange="render()"><option value="">All sections</option></select></label>
+  <div class="fld"><span>Period</span>
+    <div class="seg" id="tog-mode">
+      <button id="btn-daily" class="on" onclick="setMode('daily')">Daily</button>
+      <button id="btn-monthly" onclick="setMode('monthly')">Monthly average</button>
+    </div></div>
+  <div class="fld"><span>People</span>
+    <div class="seg" id="tog-view">
+      <button id="btn-all" class="on" onclick="setView('all')">All</button>
+      <button id="btn-staff" onclick="setView('staff')">Staff</button>
+      <button id="btn-worker" onclick="setView('worker')">Workers</button>
+    </div></div>
+  <div class="fld"><span>Shift</span>
+    <div class="seg" id="tog-shift">
+      <button id="btn-sall" class="on" onclick="setShift('all')">All</button>
+      <button id="btn-day" onclick="setShift('day')">Day</button>
+      <button id="btn-night" onclick="setShift('night')">Night</button>
+    </div></div>
+  <span class="asof">Attendance data up to 28/11/2026</span>
 </div>
 
-<div class="cgrid">
-  <div class="card">
-    <h3 id="ch-sec-title">Section-wise: Approved vs Present</h3>
-    <canvas id="ch-sec" style="max-height:220px"></canvas>
-  </div>
-  <div class="card">
-    <h3 id="ch-pun-title">Punctuality Breakdown</h3>
-    <canvas id="ch-pun" style="max-height:220px"></canvas>
-  </div>
+<div class="figs" aria-live="polite">
+  <div class="fig"><div class="l">Approved</div><div class="v" id="kv-app">—</div><div class="s" id="ks-app"></div></div>
+  <div class="fig"><div class="l">Present</div><div class="v" id="kv-pre">—</div><div class="s" id="ks-pre"></div></div>
+  <div class="fig" id="kpi-sho"><div class="l" id="kl-sho">Shortfall</div><div class="v" id="kv-sho">—</div><div class="s" id="ks-sho"></div></div>
+  <div class="fig"><div class="l" id="kl-ot">On time</div><div class="v" id="kv-ot">—</div><div class="s" id="ks-ot"></div></div>
+  <div class="fig"><div class="l" id="kl-ea">Early</div><div class="v" id="kv-ea">—</div><div class="s" id="ks-ea"></div></div>
 </div>
 
-<div class="bgrid">
-  <div class="tcard">
-    <h3>Section Detail &nbsp;<span id="tbl-lbl" style="font-weight:400;text-transform:none;color:var(--sub)"></span></h3>
-    <div class="tw">
-      <table>
-        <thead><tr>
-          <th onclick="srt(0)">Section</th>
-          <th onclick="srt(1)">Approved</th>
-          <th onclick="srt(2)">Present</th>
-          <th onclick="srt(3)">Shortfall / Surplus</th>
-          <th onclick="srt(4)" id="th-ot">On Time %</th>
-          <th onclick="srt(5)" id="th-ea">Early %</th>
-          <th onclick="srt(6)">Att %</th>
-          <th onclick="srt(7)">Status</th>
-        </tr></thead>
-        <tbody id="tbl-body"></tbody>
-      </table>
+<div class="cols">
+  <section class="cv-sec">
+    <h3 id="ch-sec-title">Approved and present by section</h3>
+    <p class="note" id="ch-sec-note">Scroll the chart to see every section.</p>
+    <div class="lg"><span><i class="o"></i>Approved</span><span><i class="p"></i><b id="lg-p">Present</b></span></div>
+    <div class="scroll" id="scroll-sec" tabindex="0" role="region" aria-label="Section chart, scroll to see all sections">
+      <div class="cv" id="cv-sec"><canvas id="ch-sec" role="img" aria-label="Approved against present by section; the same numbers are in the table below"></canvas></div>
     </div>
-  </div>
-  <div class="mcard">
-    <h3 id="mon-title">Monthly Avg Attendance %</h3>
-    <canvas id="ch-mon" style="max-height:200px"></canvas>
+  </section>
+  <div class="stack">
+    <section>
+      <h3 id="ch-pun-title">How punctual was arrival?</h3>
+      <p class="note" id="pun-note"></p>
+      <div id="pun-wrap"></div>
+    </section>
+    <section>
+      <h3 id="mon-title">Average attendance by section</h3>
+      <p class="note">Lowest first. Green 90% and above, amber 75–89%, red below 75%.</p>
+      <div class="cv mon"><canvas id="ch-mon" role="img" aria-label="Average monthly attendance by section; the same numbers are in the table below"></canvas></div>
+    </section>
   </div>
 </div>
 
-</main>
-<footer>
-  <span>PICL India Pvt. Ltd. | Manpower Monitoring Dashboard</span>
-  <span>Generated: 28 Nov 2026, 09:31 AM</span>
-</footer>
+<div class="tablewrap">
+  <div class="thead-row"><h3>Sections</h3><span class="note" id="tbl-lbl"></span></div>
+  <div class="tw">
+    <table>
+      <thead><tr>
+        <th scope="col" aria-sort="ascending"><button onclick="srt(0)">Section</button></th>
+        <th scope="col"><button onclick="srt(1)">Approved</button></th>
+        <th scope="col"><button onclick="srt(2)">Present</button></th>
+        <th scope="col"><button onclick="srt(3)">Short / surplus</button></th>
+        <th scope="col"><button onclick="srt(4)" id="th-ot">On time</button></th>
+        <th scope="col"><button onclick="srt(5)" id="th-ea">Early</button></th>
+        <th scope="col"><button onclick="srt(6)">Attendance</button></th>
+        <th scope="col"><button onclick="srt(7)">Status</button></th>
+      </tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<footer><span>PICL India Pvt. Ltd. Manpower monitoring</span><span>Updated 28 Nov 2026, 11:32 AM</span></footer>
 </div>
 
 <script>
@@ -249,8 +356,104 @@ const SECTIONS   = ["FACILITY MANAGEMENT", "HORTICULTURE", "HR", "CAFETERIA", "T
 let VIEW = 'all', SHIFT = 'all', SUNDAY = false, MODE = 'daily';
 let sortCol = 0, sortDir = 1, tableRows = [];
 let CH = {};
+function C(n){return getComputedStyle(document.documentElement).getPropertyValue('--'+n).trim();}
+function toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),5000);
+}
+function toggleFS(){
+  const d=document, el=d.documentElement;
+  try{
+    let r;
+    if(!d.fullscreenElement && !d.webkitFullscreenElement){
+      const f=el.requestFullscreen||el.webkitRequestFullscreen;
+      if(!f) throw new Error('unsupported');
+      r=f.call(el);
+    } else { r=(d.exitFullscreen||d.webkitExitFullscreen).call(d); }
+    if(r&&r.catch) r.catch(()=>toast('Full screen is blocked in this preview. Open the dashboard in its own browser tab, then use this button.'));
+  }catch(e){ toast('Full screen is not available here. Open the dashboard in its own browser tab, then use this button.'); }
+}
+function syncFS(){
+  const on=!!(document.fullscreenElement||document.webkitFullscreenElement), b=document.getElementById('btn-fs');
+  if(!b) return; b.setAttribute('aria-pressed',on);
+  b.setAttribute('aria-label',on?'Exit full screen':'Enter full screen');
+  b.title=on?'Exit full screen (Esc)':'Full screen (Esc to exit)';
+  b.textContent=on?'✖️':'⛶';
+}
+document.addEventListener('fullscreenchange',syncFS); document.addEventListener('webkitfullscreenchange',syncFS);
+function setThemeButtons(){const t=document.documentElement.getAttribute('data-theme');
+  document.getElementById('th-light').setAttribute('aria-pressed',t==='light');
+  document.getElementById('th-dark').setAttribute('aria-pressed',t==='dark');}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{localStorage.setItem('picl-theme',t);}catch(e){}
+  document.getElementById('th-light').setAttribute('aria-pressed',t==='light');
+  document.getElementById('th-dark').setAttribute('aria-pressed',t==='dark');
+  Chart.defaults.color=C('mute');
+  if(typeof render==='function' && document.getElementById('flt-date')) render();
+}
+function mixHex(h,t,to){const n=parseInt(h.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255,m=v=>Math.round(v+(to-v)*t);
+  return 'rgb('+m(r)+','+m(g)+','+m(b)+')';}
+function glossBar(hex,horiz){return c=>{const e=c.element; if(!e||e.base===undefined||isNaN(e.y)) return hex;
+  const ctx=c.chart.ctx; const y0=horiz?e.y-e.height/2:Math.min(e.y,e.base), y1=horiz?e.y+e.height/2:Math.max(e.y,e.base);
+  const g=ctx.createLinearGradient(0,y0,0,y1);
+  g.addColorStop(0,mixHex(hex,.45,255)); g.addColorStop(.5,hex); g.addColorStop(.52,mixHex(hex,.18,0)); g.addColorStop(1,hex); return g;};}
+function pieFill(c,hex){const a=c.chart.chartArea; if(!a) return hex; const ctx=c.chart.ctx;
+  const cx=(a.left+a.right)/2, cy=(a.top+a.bottom)/2, r=Math.min(a.right-a.left,a.bottom-a.top)/2;
+  const g=ctx.createRadialGradient(cx-r*.35,cy-r*.45,r*.05,cx,cy,r*1.05);
+  g.addColorStop(0,mixHex(hex,.55,255)); g.addColorStop(.55,hex); g.addColorStop(1,mixHex(hex,.35,0)); return g;}
+const pieGloss={id:'pieGloss',afterDatasetsDraw(ch){const a=ch.chartArea,ctx=ch.ctx;
+  const cx=(a.left+a.right)/2, cy=(a.top+a.bottom)/2, r=Math.min(a.right-a.left,a.bottom-a.top)/2;
+  ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
+  const g=ctx.createLinearGradient(0,cy-r,0,cy+r*.1); g.addColorStop(0,'rgba(255,255,255,.42)'); g.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(cx,cy-r*.42,r*.78,r*.52,0,0,Math.PI*2); ctx.fill(); ctx.restore();}};
+
+const valueLabels={id:'valueLabels',afterDatasetsDraw(ch,_a,o){
+  if(!o||!o.fmt) return; const ctx=ch.ctx; ctx.save();
+  ctx.font='600 11px '+Chart.defaults.font.family; ctx.textBaseline='middle';
+  ch.data.datasets.forEach((ds,i)=>{ const meta=ch.getDatasetMeta(i); if(meta.hidden) return;
+    const total=o.pie?ds.data.reduce((a,b)=>a+b,0):0;
+    meta.data.forEach((el,j)=>{ const v=ds.data[j]; if(v===null||v===undefined) return;
+      if(o.pie){ const share=total>0?v/total:0; if(share<.06) return; const p=el.tooltipPosition();
+        ctx.font='700 13px '+Chart.defaults.font.family; ctx.textAlign='center'; ctx.fillStyle='#fff';
+        ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=3; ctx.fillText((share*100).toFixed(0)+'%',p.x,p.y); ctx.shadowBlur=0; return; }
+      const t=o.fmt(v); const w=ctx.measureText(t).width;
+      if(o.inside && el.x-el.base>w+12){ ctx.fillStyle=document.documentElement.dataset.theme==='dark'?'#0E1418':'#fff'; ctx.textAlign='right'; ctx.fillText(t,el.x-6,el.y); }
+      else { ctx.fillStyle=C('ink'); ctx.textAlign='left'; ctx.fillText(t,el.x+6,el.y); }
+    }); });
+  ctx.restore(); }};
+function buildSectionChart(rows, presentName) {
+  rows=rows.sort((a,b)=>b.approved-a.approved);
+  const el=document.getElementById('ch-sec');
+  el.parentElement.style.height=Math.max(260,rows.length*34+36)+'px';
+  set('lg-p',presentName);
+  if(CH.sec)CH.sec.destroy();
+  const fmt=v=>Number.isInteger(v)?String(v):v.toFixed(1);
+  CH.sec=new Chart(el.getContext('2d'),{
+    type:'bar',
+    data:{labels:rows.map(r=>r.label),datasets:[
+      {label:'Approved',data:rows.map(r=>r.approved),backgroundColor:C('appfill'),borderColor:C('ink'),borderWidth:1.5,borderRadius:2},
+      {label:presentName,data:rows.map(r=>r.present),backgroundColor:glossBar(C('present'),true),borderRadius:2}
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:40}},
+      datasets:{bar:{categoryPercentage:.84,barPercentage:.92}},
+      plugins:{legend:{display:false},
+        valueLabels:{fmt},
+        tooltip:{callbacks:{afterLabel:c=>{
+          if(c.dataset.label!=='Approved'){const app=rows[c.dataIndex].approved; return app>0?'Attendance: '+(c.raw/app*100).toFixed(1)+'%':'';} return '';}}}},
+      scales:{x:{beginAtZero:true,grid:{color:C('rule-soft')},border:{display:false},ticks:{font:{size:11}}},
+               y:{grid:{display:false},ticks:{autoSkip:false,font:{size:11}}}}
+    }
+  });
+}
+
 
 window.addEventListener('DOMContentLoaded', () => {
+  Chart.defaults.font.family="'Public Sans','Segoe UI',system-ui,sans-serif";
+  Chart.defaults.color=C('mute');
+  setThemeButtons();
+  Chart.register(valueLabels);
   populateMonthFilter();
   populateSectionFilter();
   render();
@@ -427,8 +630,8 @@ function renderDailyMode() {
   const sec   = document.getElementById('flt-sec').value;
   const secUp = sec.toUpperCase();
 
-  document.getElementById('hdr-date').textContent = 'Date: '+(date||'—');
-  document.getElementById('tbl-lbl').textContent  = date ? '— '+date : '';
+  document.getElementById('hdr-date').textContent = (date||'—');
+  document.getElementById('tbl-lbl').dataset.base = date ? date : '';
 
   SUNDAY = (() => {
     if (!date) return false;
@@ -456,28 +659,29 @@ function renderDailyMode() {
   const eaThresh = SHIFT==='night'?'20:50':'08:50';
   const punctRef = SHIFT==='night'?'N9 shift':'General shift';
 
-  set('kl-ot',`On Time (shift+5min)`); set('kl-ea',`Early (shift-10min)`);
+  set('kl-ot','On time'); set('kl-ea','Early');
   set('kv-app', totApproved.toLocaleString());
-  set('ks-app', SUNDAY ? 'Sunday — approved = present' : `${vLabel} — ${sLabel}`);
+  set('ks-app', SUNDAY ? 'Sunday: approved equals present' : `${vLabel}, ${sLabel}`);
   set('kv-pre', totPresent.toLocaleString());
-  set('ks-pre', totApproved>0 ? attPct.toFixed(1)+'% attendance rate' : '');
+  set('ks-pre', totApproved>0 ? attPct.toFixed(1)+'% attendance' : '');
 
   const shoCard = document.getElementById('kpi-sho');
-  if (diff>0)       { shoCard.style.borderTopColor='var(--grn)'; set('kv-sho','+'+diff.toLocaleString()); set('ks-sho',diff+' over approved (surplus)'); }
-  else if (diff<0)  { shoCard.style.borderTopColor='var(--red)';  set('kv-sho',Math.abs(diff).toLocaleString()); set('ks-sho',totApproved>0?(Math.abs(diff)/totApproved*100).toFixed(1)+'% deficit':''); }
-  else              { shoCard.style.borderTopColor='var(--grn)'; set('kv-sho','0'); set('ks-sho','Fully staffed'); }
+  if (diff>0)       { shoCard.className='fig pos'; set('kv-sho','+'+diff.toLocaleString()); set('ks-sho',diff+' above approved'); }
+  else if (diff<0)  { shoCard.className='fig neg';  set('kv-sho',Math.abs(diff).toLocaleString()); set('ks-sho',totApproved>0?(Math.abs(diff)/totApproved*100).toFixed(1)+'% below approved':''); }
+  else              { shoCard.className='fig pos'; set('kv-sho','0'); set('ks-sho','Matches approved'); }
 
   set('kv-ot', totPunctPre>0?otPct.toFixed(1)+'%':'—');
-  set('ks-ot', totPunctPre>0?totOnTime+' of '+totPunctPre+' ('+punctRef+')':'No data');
+  set('ks-ot', totPunctPre>0?totOnTime+' of '+totPunctPre+', '+punctRef:'No arrivals recorded');
   set('kv-ea', totPunctPre>0?eaPct.toFixed(1)+'%':'—');
-  set('ks-ea', totPunctPre>0?totEarly+' of '+totPunctPre+' ('+punctRef+')':'');
+  set('ks-ea', totPunctPre>0?totEarly+' of '+totPunctPre+', '+punctRef:'');
 
-  document.getElementById('ch-sec-title').textContent=`Section-wise: Approved vs Present — ${vLabel} | ${sLabel}`;
-  document.getElementById('ch-pun-title').textContent=`Punctuality — ${SHIFT==='night'?'N9 Night':'General Day'} Shift | ${vLabel}`;
-  document.getElementById('mon-title').textContent=`Monthly Avg Attendance % — ${vLabel} | ${sLabel}`;
-  document.getElementById('th-ot').textContent=`On Time %`;
-  document.getElementById('th-ea').textContent=`Early %`;
+  set('ch-sec-note',`${vLabel}, ${sLabel}. Scroll to see every section.`);
+  
+  set('mon-title','Average attendance by section');
+  document.getElementById('th-ot').textContent='On time';
+  document.getElementById('th-ea').textContent='Early';
 
+  updateLede(totApproved,totPresent,diff,false);
   renderSectionChart(recs, sec, secUp);
   renderPunctChart(totOnTime, totEarly, totPunctPre);
   renderTable(recs, sec, secUp);
@@ -494,7 +698,7 @@ function renderMonthlyMode() {
   const mEl    = document.getElementById('flt-month');
   const mLabel = mEl.options[mEl.selectedIndex]?.text || 'All Months';
   document.getElementById('hdr-date').textContent = mLabel;
-  document.getElementById('tbl-lbl').textContent  = '— Monthly Avg';
+  document.getElementById('tbl-lbl').dataset.base = 'Monthly average';
 
   // Filter ATT to selected month
   let recs = month
@@ -530,69 +734,46 @@ function renderMonthlyMode() {
   const otThresh = SHIFT==='night'?'21:05':'09:05';
   const eaThresh = SHIFT==='night'?'20:50':'08:50';
 
-  set('kl-ot',`Avg On Time (shift+5min)`); set('kl-ea',`Avg Early (shift-10min)`);
+  set('kl-ot','On time, average'); set('kl-ea','Early, average');
   set('kv-app', totalApp.toLocaleString());
-  set('ks-app', `${vLabel} — ${sLabel}`);
+  set('ks-app', `${vLabel}, ${sLabel}`);
   set('kv-pre', avgPresent.toFixed(0));
-  set('ks-pre', avgAttPct.toFixed(1)+'% avg attendance — '+dayCount+' days');
+  set('ks-pre', avgAttPct.toFixed(1)+'% average attendance over '+dayCount+' days');
 
   const shoCard = document.getElementById('kpi-sho');
-  if (avgDiff>0)      { shoCard.style.borderTopColor='var(--grn)'; set('kv-sho','+'+avgDiff.toFixed(0)); set('ks-sho','avg surplus per day'); }
-  else if (avgDiff<0) { shoCard.style.borderTopColor='var(--red)';  set('kv-sho',Math.abs(avgDiff).toFixed(0)); set('ks-sho',totalApp>0?(Math.abs(avgDiff)/totalApp*100).toFixed(1)+'% avg deficit':''); }
-  else                { shoCard.style.borderTopColor='var(--grn)'; set('kv-sho','0'); set('ks-sho','Fully staffed avg'); }
+  if (avgDiff>0)      { shoCard.className='fig pos'; set('kv-sho','+'+avgDiff.toFixed(0)); set('ks-sho','more than approved, per day'); }
+  else if (avgDiff<0) { shoCard.className='fig neg';  set('kv-sho',Math.abs(avgDiff).toFixed(0)); set('ks-sho',totalApp>0?(Math.abs(avgDiff)/totalApp*100).toFixed(1)+'% below approved, per day':''); }
+  else                { shoCard.className='fig pos'; set('kv-sho','0'); set('ks-sho','Matches approved'); }
 
   set('kv-ot', totPunctSum>0?avgOt.toFixed(1)+'%':'—');
-  set('ks-ot', `avg over ${dayCount} days`);
+  set('ks-ot', `average over ${dayCount} days`);
   set('kv-ea', totPunctSum>0?avgEa.toFixed(1)+'%':'—');
-  set('ks-ea', `avg over ${dayCount} days`);
+  set('ks-ea', `average over ${dayCount} days`);
 
-  document.getElementById('ch-sec-title').textContent=`Avg Present vs Approved — ${mLabel} | ${vLabel}`;
-  document.getElementById('ch-pun-title').textContent=`Avg Punctuality — ${mLabel} | ${vLabel}`;
-  document.getElementById('mon-title').textContent   =`Section Avg Attendance % — ${mLabel}`;
-  document.getElementById('th-ot').textContent=`Avg On Time %`;
-  document.getElementById('th-ea').textContent=`Avg Early %`;
+  set('ch-sec-note',`${mLabel}, ${vLabel}. Scroll to see every section.`);
+  
+  set('mon-title','Average attendance by section');
+  document.getElementById('th-ot').textContent='On time, avg';
+  document.getElementById('th-ea').textContent='Early, avg';
 
+  updateLede(totalApp,avgPresent,avgDiff,true);
   renderSectionChartMonthly(sec, secUp, snapKey);
   renderPunctChartMonthly(recs, totPunctSum);
   renderTableMonthly(sec, secUp, snapKey, monthDates);
   renderMonthly(sec, secUp);
 }
 
-// ── Section chart MONTHLY ─────────────────────────────────────────────────────
+// ── Section chart MONTHLY
 function renderSectionChartMonthly(sec, secUp, snapKey) {
   const rows = SECTIONS
     .filter(s=>APPROVED[s]&&APPROVED[s].total_approved>0)
     .filter(s=>!sec||s===secUp)
     .map(s=>{
       const app  = getApprovedForMonth(s, snapKey);
-      const mkey = getMonthlyKey();
-      const avg  = MONTHLY[s]?.[mkey] || 0;
-      const avgP = app>0 ? avg/100*app : 0;
-      return {label:abbr(s), approved:app, present:parseFloat(avgP.toFixed(1))};
+      const avg  = MONTHLY[s]?.[getMonthlyKey()] || 0;
+      return {label:abbr(s), approved:app, present:parseFloat((app>0?avg/100*app:0).toFixed(1))};
     }).filter(r=>r.approved>0||r.present>0);
-
-  const ctx=document.getElementById('ch-sec').getContext('2d');
-  if(CH.sec)CH.sec.destroy();
-  CH.sec=new Chart(ctx,{
-    type:'bar',
-    data:{labels:rows.map(r=>r.label),datasets:[
-      {label:'Approved',data:rows.map(r=>r.approved),
-        backgroundColor:'rgba(26,115,200,.10)',borderColor:'#1a73c8',borderWidth:2,borderDash:[5,3]},
-      {label:'Avg Present',data:rows.map(r=>r.present),
-        backgroundColor:'rgba(22,163,74,.75)',borderRadius:4}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,animation:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:11,font:{size:10}}},
-        tooltip:{callbacks:{afterLabel:ctx=>{
-          if(ctx.dataset.label==='Avg Present'){
-            const app=rows[ctx.dataIndex].approved;
-            return app>0?'Avg Att: '+(ctx.raw/app*100).toFixed(1)+'%':'';
-          } return '';
-        }}}},
-      scales:{x:{stacked:false,grid:{display:false},ticks:{font:{size:9}}},
-               y:{beginAtZero:true,grid:{color:'#f0f4f8'},ticks:{font:{size:9}}}}
-    }
-  });
+  buildSectionChart(rows,'Average present');
 }
 
 // ── Punctuality chart MONTHLY ─────────────────────────────────────────────────
@@ -630,71 +811,60 @@ function renderTableMonthly(sec, secUp, snapKey, monthDates) {
   drawTable();
 }
 
-// ── Section chart ─────────────────────────────────────────────────────────────
+// ── Section chart ──
 function renderSectionChart(recs, sec, secUp) {
   const secMap={};
   recs.forEach(r=>{secMap[r.section]=r;});
   const rows = SECTIONS
     .filter(s=>APPROVED[s]&&APPROVED[s].total_approved>0)
     .filter(s=>!sec||s===secUp)
-    .map(s=>{
-      const r=secMap[s], app=getApproved(s), pre=r?getPresent(r):0;
-      return {label:abbr(s),approved:app,present:pre};
-    }).filter(r=>r.approved>0||r.present>0);
-
-  const ctx=document.getElementById('ch-sec').getContext('2d');
-  if(CH.sec)CH.sec.destroy();
-  CH.sec=new Chart(ctx,{
-    type:'bar',
-    data:{labels:rows.map(r=>r.label),datasets:[
-      {label:'Approved',data:rows.map(r=>r.approved),
-        backgroundColor:'rgba(26,115,200,.10)',borderColor:'#1a73c8',borderWidth:2,borderDash:[5,3]},
-      {label:'Present',data:rows.map(r=>r.present),
-        backgroundColor:'rgba(22,163,74,.75)',borderRadius:4}
-    ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,animation:false,
-      plugins:{
-        legend:{position:'top',labels:{boxWidth:11,font:{size:10}}},
-        tooltip:{callbacks:{afterLabel:ctx=>{
-          if(ctx.dataset.label==='Present'){
-            const app=rows[ctx.dataIndex].approved;
-            return app>0?'Att: '+(ctx.raw/app*100).toFixed(1)+'%':'';
-          } return '';
-        }}}
-      },
-      scales:{
-        x:{stacked:false,grid:{display:false},ticks:{font:{size:9}}},
-        y:{beginAtZero:true,grid:{color:'#f0f4f8'},ticks:{font:{size:9}}}
-      }
-    }
-  });
+    .map(s=>{ const r=secMap[s]; return {label:abbr(s),approved:getApproved(s),present:r?getPresent(r):0}; })
+    .filter(r=>r.approved>0||r.present>0);
+  buildSectionChart(rows,'Present');
 }
 
 // ── Punctuality donut ─────────────────────────────────────────────────────────
 function renderPunctChart(onTime, early, total) {
-  const late=Math.max(0,total-onTime), punctual=onTime-early;
-  const ctx=document.getElementById('ch-pun').getContext('2d');
-  if(CH.pun)CH.pun.destroy();
-  CH.pun=new Chart(ctx,{
-    type:'doughnut',
-    data:{
-      labels:['Early (shift − 10min)', 'On Time (shift ± 5min)', 'Late'],
-      datasets:[{data:[early,punctual,late],
-        backgroundColor:['#7c3aed','#16a34a','#dc2626'],
-        borderWidth:2,borderColor:'#fff',hoverOffset:4}]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,animation:false,cutout:'62%',
-      plugins:{
-        legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:7}},
-        tooltip:{callbacks:{label:ctx=>{
-          const pct=total>0?(ctx.raw/total*100).toFixed(1):0;
-          return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
-        }}}
-      }
-    }
+  const late=Math.max(0,total-onTime), punctual=Math.max(0,onTime-early);
+  const vLabel = VIEW==='staff'?'staff':VIEW==='worker'?'workers':'all people';
+  const ref = SHIFT==='night'?'N9 night shift':'General day shift';
+  set('pun-note', `${ref}, ${vLabel}. On time is within 5 minutes of shift start; early is 10 minutes or more before.`);
+  const w=document.getElementById('pun-wrap');
+  if(CH.pun){CH.pun.destroy();CH.pun=null;}
+  if(total<=0){ w.innerHTML='<p class="pun-empty">No arrivals recorded for this selection.</p>'; return; }
+  const seg=[['Early',C('early'),early],['On time',C('present'),punctual],['Late',C('short'),late]];
+  const pc=v=>(v/total*100);
+  w.innerHTML='<div class="pie-row"><div class="pie"><canvas id="ch-pun" role="img" aria-label="'+
+    seg.map(s=>s[0]+' '+pc(s[2]).toFixed(1)+'%').join(', ')+'"></canvas></div>'+
+    '<div class="pun-key">'+seg.map(s=>'<span><em style="background:'+s[1]+'"></em>'+s[0]+' <b>'+s[2].toLocaleString()+'</b> ('+pc(s[2]).toFixed(1)+'%)</span>').join('')+'</div></div>';
+  CH.pun=new Chart(document.getElementById('ch-pun').getContext('2d'),{
+    type:'pie',
+    data:{labels:seg.map(s=>s[0]),datasets:[{data:seg.map(s=>s[2]),
+      backgroundColor:c=>pieFill(c,seg[c.dataIndex][1]),borderColor:C('panel'),borderWidth:2,hoverOffset:6}]},
+    plugins:[pieGloss],
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{legend:{display:false},valueLabels:{pie:true,fmt:v=>String(v)},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw.toLocaleString()} (${pc(c.raw).toFixed(1)}%)`}}}}
   });
+}
+
+function updateLede(app, pre, diff, monthly) {
+  const f=n=>Math.round(Math.abs(n)).toLocaleString();
+  const avg=monthly?' on average':'';
+  let h;
+  if(app<=0 && pre<=0) h='No attendance recorded for this selection';
+  else if(Math.round(diff)<0) h=f(diff)+' short of approved strength'+avg;
+  else if(Math.round(diff)>0) h=f(diff)+' above approved strength'+avg;
+  else h='Matches approved strength'+avg;
+  set('headline',h);
+  set('kl-sho', Math.round(diff)>0?'Above approved':'Short of approved');
+  set('lede-sub', app>0 ? f(pre)+' present against '+f(app)+' approved, '+(pre/app*100).toFixed(1)+'% attendance.' : '');
+  const max=Math.max(app,pre,1);
+  const fill=document.getElementById('g-fill'), gap=document.getElementById('g-gap'), tick=document.getElementById('g-tick');
+  fill.style.width=(pre/max*100)+'%';
+  gap.style.left=(pre/max*100)+'%'; gap.style.width=(Math.max(0,app-pre)/max*100)+'%';
+  tick.style.left='calc('+(app/max*100)+'% - 2px)';
+  document.getElementById('gauge').setAttribute('aria-label',f(pre)+' present against '+f(app)+' approved');
+  set('g-key','Approved strength: '+f(app));
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
@@ -717,27 +887,34 @@ function renderTable(recs, sec, secUp) {
 }
 
 function drawTable() {
+  const sc = sortCol===7 ? 6 : sortCol;
   const data=[...tableRows].sort((a,b)=>{
-    const av=a[sortCol],bv=b[sortCol];
+    const av=a[sc],bv=b[sc];
     if(av===null&&bv===null)return 0;
     if(av===null)return 1;if(bv===null)return -1;
     return typeof av==='string'?sortDir*av.localeCompare(bv):sortDir*(av-bv);
   });
+  const lbl=document.getElementById('tbl-lbl');
+  if(lbl.dataset.base===undefined) lbl.dataset.base='';
+  lbl.textContent=(lbl.dataset.base?lbl.dataset.base+'. ':'')+data.length+' sections';
+  if(!data.length){
+    document.getElementById('tbl-body').innerHTML='<tr class="empty-row"><td colspan="8">No sections match this selection. Choose All sections to see the full list.</td></tr>';
+    return;
+  }
   document.getElementById('tbl-body').innerHTML=data.map(r=>{
     const [sec,app,pre,diff2,attP,otP,eaP]=r;
-    const status=attP>=100?'<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#16a34a"></span>'
-                :attP>=50 ?'<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#d97706"></span>'
-                          :'<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#dc2626"></span>';
-    const sfStyle=diff2>0?'color:#16a34a;font-weight:700':diff2<0?'color:#dc2626;font-weight:700':'color:#16a34a;font-weight:700';
-    const sfText=diff2>0?'+'+diff2:diff2<0?diff2:'0';
+    const col=attP>=100?C('present'):attP>=50?C('warn'):C('short');
+    const word=attP>=100?'Met':attP>=50?'Short':'Low';
+    const sfCls=diff2<0?'neg':'pos';
+    const sfText=diff2>0?'+'+diff2:diff2<0?'−'+Math.abs(diff2):'0';
     return `<tr>
-      <td><b>${sec}</b></td>
+      <td>${sec}</td>
       <td>${app}</td><td>${pre}</td>
-      <td style="${sfStyle}">${sfText}</td>
+      <td class="${sfCls}">${sfText}</td>
       <td>${otP!==null?pctC(otP):'—'}</td>
       <td>${eaP!==null?pctC(eaP):'—'}</td>
-      <td>${app>0?pctC(attP):'—'}</td>
-      <td>${status}</td>
+      <td>${app>0?`<span class="attcell"><span class="attbar"><i style="width:${Math.min(100,attP)}%;background:${col}"></i></span>${attP.toFixed(1)}%</span>`:'—'}</td>
+      <td><span class="st"><i style="background:${col}"></i>${word}</span></td>
     </tr>`;
   }).join('');
 }
@@ -745,8 +922,8 @@ function drawTable() {
 function srt(col){
   sortDir=(sortCol===col)?sortDir*-1:1;sortCol=col;
   document.querySelectorAll('thead th').forEach((th,i)=>{
-    th.classList.remove('sa','sd');
-    if(i===col)th.classList.add(sortDir===1?'sa':'sd');
+    if(i===col)th.setAttribute('aria-sort',sortDir===1?'ascending':'descending');
+    else th.removeAttribute('aria-sort');
   });
   drawTable();
 }
@@ -769,15 +946,15 @@ function renderMonthly(sec, secUp) {
     data:{
       labels:rows.map(r=>r.label),
       datasets:[{label:'Avg Att %',data:rows.map(r=>r.val),
-        backgroundColor:rows.map(r=>r.val>=90?'rgba(22,163,74,.75)':r.val>=75?'rgba(217,119,6,.75)':'rgba(220,38,38,.75)'),
-        borderRadius:4}]
+        backgroundColor:rows.map(r=>r.val>=90?C('present'):r.val>=75?C('warn'):C('short')),
+        borderRadius:2}]
     },
     options:{
       responsive:true,maintainAspectRatio:false,animation:false,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw}%`}}},
+      layout:{padding:{right:8}},plugins:{legend:{display:false},valueLabels:{inside:true,fmt:v=>v+'%'},tooltip:{callbacks:{label:c=>` ${c.raw}%`}}},
       scales:{
-        x:{min:0,max:100,grid:{color:'#f0f4f8'},ticks:{font:{size:9},callback:v=>v+'%'}},
-        y:{grid:{display:false},ticks:{font:{size:9}}}
+        x:{min:0,max:100,grid:{color:C('rule-soft')},border:{display:false},ticks:{font:{size:11},callback:v=>v+'%'}},
+        y:{grid:{display:false},ticks:{autoSkip:false,font:{size:11}}}
       }
     }
   });
@@ -785,8 +962,8 @@ function renderMonthly(sec, secUp) {
 
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
 function pctC(v){
-  const c=v>=90?'#16a34a':v>=75?'#d97706':'#dc2626';
-  return `<span style="color:${c};font-weight:700">${v.toFixed(1)}%</span>`;
+  const c=v>=90?'pos':v>=75?'mid':'neg';
+  return `<span class="${c}">${v.toFixed(1)}%</span>`;
 }
 function abbr(s){
   return s.replace('RESEARCH & DEVELOPMENT','R&D')
